@@ -1,7 +1,12 @@
 import os
 import subprocess
+import torch
 
-from setuptools import find_packages, setup
+torch_dir = os.path.dirname(torch.__file__)
+torch_include = os.path.join(torch_dir, 'include')
+from setuptools import find_packages, setup, Extension
+
+
 from torch.utils.cpp_extension import BuildExtension, CUDAExtension
 
 
@@ -14,10 +19,11 @@ def get_git_commit_number():
     return git_commit_number
 
 
-def make_cuda_ext(name, module, sources):
+def make_cuda_ext(name, module, sources,include_dirs=[torch_include]):
     cuda_ext = CUDAExtension(
         name='%s.%s' % (module, name),
-        sources=[os.path.join(*module.split('.'), src) for src in sources]
+        sources=[os.path.join(*module.split('.'), src) for src in sources],
+        include_dirs=include_dirs
     )
     return cuda_ext
 
@@ -61,7 +67,7 @@ if __name__ == '__main__':
                     'src/build_attention_indices_gpu.cu',
                     'src/group_features.cpp',
                     'src/group_features_gpu.cu',
-                ],
+                ],  
             ),
             make_cuda_ext(
                 name='iou3d_nms_cuda',

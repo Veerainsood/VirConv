@@ -128,7 +128,7 @@ python3 creat_semi_dataset.py ../data/odometry ../data/kitti/semi
 
 (3) Download the PENet depth completion model from [google (500M)](https://drive.google.com/file/d/1RDdKlKJcas-G5OA49x8OoqcUDiYYZgeM/view?usp=sharing) or [baidu (gp68)](https://pan.baidu.com/s/1tBVuqvBZ0ns79ARmNpgwWw), and put it into ```tools/PENet```.
 
-(4) Then run the following code to generate RGB virtual points.
+(4) Then run the following code to generate RGB virtual points. (This adds velodyne_depth.npy to the training / testing / semi folder respectively)
 
 ```
 cd tools/PENet

@@ -493,6 +493,7 @@ class KittiDatasetSemi(DatasetTemplate):
 
 def create_kitti_infos(dataset_cfg, class_names, data_path, save_path, workers=4):
     dataset = KittiDatasetSemi(dataset_cfg=dataset_cfg, class_names=class_names, root_path=data_path, training=False)
+    print(dataset)
     semi_split, trainsemi_split, trainvalsemi_split = 'semi', 'trainsemi', 'trainvalsemi'
 
     semi_filename = save_path / ('kitti_infos_%s.pkl' % semi_split)
@@ -541,6 +542,7 @@ if __name__ == '__main__':
         from easydict import EasyDict
         dataset_cfg = EasyDict(yaml.safe_load(open(sys.argv[2])))
         ROOT_DIR = (Path(__file__).resolve().parent / '../../../').resolve()
+        
         create_kitti_infos(
             dataset_cfg=dataset_cfg,
             class_names=['Car', 'Pedestrian', 'Cyclist'],

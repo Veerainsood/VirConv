@@ -1,15 +1,16 @@
 import os
 import shutil
 
-def list_dirs(root=r'L:\data\kitti\odometry\dataset\sequences'):
+def list_dirs(root=r'L:\data\kitti\odometry'):
     all_frames = []
 
     all_seq = os.listdir(root)
     all_seq.sort()
-    
+    print(all_seq)
     for seq_name in all_seq:
         seq_path = os.path.join(root, seq_name)
         seq_path_velodyne = os.path.join(seq_path, 'velodyne')
+        print(seq_path_velodyne)
         all_velo_frame_name = os.listdir(seq_path_velodyne)
         all_velo_frame_name.sort()
         seq_path_image_2 = os.path.join(seq_path, 'image_2')
@@ -70,5 +71,6 @@ if __name__ == '__main__':
     import sys
     in_path = sys.argv[1]
     out_path = sys.argv[2]
+    print(in_path)
     input_path_dict = list_dirs(in_path)
     move_data(input_path_dict, out_path)
