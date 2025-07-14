@@ -139,6 +139,7 @@ c. Install this `pcdet` library and its dependent libraries by running the follo
 ( please return to your original folder after doing above steps and then run it )
 ```shell
 pip install -e . --no-build-isolation
+python setup.py build_ext --inplace --verbose
 ```
 d. Since Majority running code exists in tools/ , you may get the pcdet not found error , that comes from subdirs not being able to find specific python env code required for running the scripts <br>
 Simply export the enviornment variable so that it becomes accessible...
