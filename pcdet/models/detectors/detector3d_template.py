@@ -10,9 +10,10 @@ from ..backbones_3d import pfe, vfe
 from ..model_utils import model_nms_utils
 
 class Detector3DTemplate(nn.Module):
-    def __init__(self, model_cfg, num_class, dataset):
+    def __init__(self, model_cfg, num_class, dataset,logger):
         super().__init__()
         self.model_cfg = model_cfg
+        self.logger = logger
         self.num_class = num_class
         self.dataset = dataset
         self.class_names = dataset.class_names
@@ -383,31 +384,33 @@ class Detector3DTemplate(nn.Module):
     def load_params_from_file(self, filename, logger, to_cpu=False):
         if not os.path.isfile(filename):
             raise FileNotFoundError
-
-        logger.info('==> Loading parameters from checkpoint %s to %s' % (filename, 'CPU' if to_cpu else 'GPU'))
+        if(logger is not None):
+            logger.info('==> Loading parameters from checkpoint %s to %s' % (filename, 'CPU' if to_cpu else 'GPU'))
         loc_type = torch.device('cpu') if to_cpu else None
-        checkpoint = torch.load(filename, map_location=loc_type)
+        checkpoint = torch.load(filename, map_location=loc_type,weights_only=False)
         model_state_disk = checkpoint['model_state']
 
         version = checkpoint.get("version", None)
         if version is not None:
-            logger.info('==> Checkpoint trained from version: %s' % version)
+            if(logger is not None):
+                logger.info('==> Checkpoint trained from version: %s' % version)
 
         state_dict, update_model_state = self._load_state_dict(model_state_disk, strict=False)
 
         for key in state_dict:
-            if key not in update_model_state:
+            if key not in update_model_state and logger is not None:
                 logger.info('Not updated weight %s: %s' % (key, str(state_dict[key].shape)))
-
-        logger.info('==> Done (loaded %d/%d)' % (len(update_model_state), len(state_dict)))
+        
+        if(logger is not None):
+            logger.info('==> Done (loaded %d/%d)' % (len(update_model_state), len(state_dict)))
 
     def load_params_with_optimizer(self, filename, to_cpu=False, optimizer=None, logger=None):
         if not os.path.isfile(filename):
             raise FileNotFoundError
-
-        logger.info('==> Loading parameters from checkpoint %s to %s' % (filename, 'CPU' if to_cpu else 'GPU'))
+        if(logger is not None):
+            logger.info('==> Loading parameters from checkpoint %s to %s' % (filename, 'CPU' if to_cpu else 'GPU'))
         loc_type = torch.device('cpu') if to_cpu else None
-        checkpoint = torch.load(filename, map_location=loc_type)
+        checkpoint = torch.load(filename, map_location=loc_type,weights_only=False)
         epoch = checkpoint.get('epoch', -1)
         it = checkpoint.get('it', 0.0)
 
@@ -415,7 +418,8 @@ class Detector3DTemplate(nn.Module):
 
         if optimizer is not None:
             if 'optimizer_state' in checkpoint and checkpoint['optimizer_state'] is not None:
-                logger.info('==> Loading optimizer parameters from checkpoint %s to %s'
+                if(logger is not None):
+                    logger.info('==> Loading optimizer parameters from checkpoint %s to %s'
                             % (filename, 'CPU' if to_cpu else 'GPU'))
                 optimizer.load_state_dict(checkpoint['optimizer_state'])
             else:
@@ -428,6 +432,7 @@ class Detector3DTemplate(nn.Module):
 
         if 'version' in checkpoint:
             print('==> Checkpoint trained from version: %s' % checkpoint['version'])
-        logger.info('==> Done')
+        if(logger is not None):
+            logger.info('==> Done')
 
         return it, epoch

@@ -1,8 +1,8 @@
 from .detector3d_template import Detector3DTemplate
 import time
 class VoxelRCNN(Detector3DTemplate):
-    def __init__(self, model_cfg, num_class, dataset):
-        super().__init__(model_cfg=model_cfg, num_class=num_class, dataset=dataset)
+    def __init__(self, model_cfg, num_class, dataset,logger=None):
+        super().__init__(model_cfg=model_cfg, num_class=num_class, dataset=dataset,logger=logger)
         self.module_list = self.build_networks()
 
     def forward(self, batch_dict):

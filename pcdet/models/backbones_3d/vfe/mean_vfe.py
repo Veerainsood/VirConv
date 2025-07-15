@@ -23,7 +23,7 @@ class MeanVFE(VFETemplate):
         Returns:
             vfe_features: (num_voxels, C)
         """
-
+        # print(batch_dict.keys())
         if 'transform_param' in batch_dict:
             trans_param = batch_dict['transform_param']
             rot_num = trans_param.shape[1]

@@ -3,3 +3,8 @@ data/
 build/
 tools/results/
 tools/PENet/pe.pth.tar
+__pycache__
+*.py[cod] this means *.pyo or *.pyc or *.pyd
+.coverage output of code coverage app
+*.log
+.vscode/

@@ -157,7 +157,17 @@ class UNetV2(nn.Module):
 
         x.features = features.view(n, out_channels, -1).sum(dim=2)
         return x
-
+    
+    def sort_sparse_tensor(self,sparse_t: spconv.SparseConvTensor) -> spconv.SparseConvTensor:
+        inds, feats = sparse_t.indices, sparse_t.features
+        order = torch.argsort(inds[:, 0], descending=False)
+        return spconv.SparseConvTensor(
+            feats[order],
+            inds[order],
+            sparse_t.spatial_shape,
+            sparse_t.batch_size,
+        )
+    
     def forward(self, batch_dict):
         """
         Args:
@@ -178,6 +188,7 @@ class UNetV2(nn.Module):
             spatial_shape=self.sparse_shape,
             batch_size=batch_size
         )
+        self.sort_sparse_tensor(input_sp_tensor)
         x = self.conv_input(input_sp_tensor)
 
         x_conv1 = self.conv1(x)

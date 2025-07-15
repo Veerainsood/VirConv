@@ -22,7 +22,7 @@ class KittiDataset(DatasetTemplate):
         super().__init__(
             dataset_cfg=dataset_cfg, class_names=class_names, training=training, root_path=root_path, logger=logger
         )
-        self.split = self.dataset_cfg.DATA_SPLIT[self.mode]
+        self.split = self.dataset_cfg.DATA_SPLIT[self.mode] # train or test
         self.root_split_path = self.root_path / ('training' if self.split != 'test' else 'testing')
 
         split_dir = self.root_path / 'ImageSets' / (self.split + '.txt')
@@ -36,7 +36,7 @@ class KittiDataset(DatasetTemplate):
             self.logger.info('Loading KITTI dataset')
         kitti_infos = []
 
-        for info_path in self.dataset_cfg.INFO_PATH[mode]:
+        for info_path in self.dataset_cfg.INFO_PATH[mode]: #train or test
             info_path = self.root_path / info_path
             if not info_path.exists():
                 continue
@@ -358,18 +358,19 @@ class KittiDataset(DatasetTemplate):
         if self._merge_all_iters_to_one_epoch:
             index = index % len(self.kitti_infos)
 
-        info = copy.deepcopy(self.kitti_infos[index])
+        info = copy.deepcopy(self.kitti_infos[index]) # all in kitti_infos_train.pkl
 
         sample_idx = info['point_cloud']['lidar_idx']
 
         points = self.get_lidar(sample_idx)
         calib = self.get_calib(sample_idx)
-
+        # print(points.shape)
         img_shape = info['image']['image_shape']
         if self.dataset_cfg.FOV_POINTS_ONLY:
             pts_rect = calib.lidar_to_rect(points[:, 0:3])
             fov_flag = self.get_fov_flag(pts_rect, img_shape, calib)
             points = points[fov_flag]
+            # print(points.shape)
 
         input_dict = {
             'points': points,

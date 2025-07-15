@@ -204,11 +204,22 @@ class NRConvBlock(nn.Module):
                                 padding=1,
                                 indice_key=('subm4' + indice_key))
 
+    def sort_sparse_tensor(self,sparse_t: spconv.SparseConvTensor) -> spconv.SparseConvTensor:
+        inds, feats = sparse_t.indices, sparse_t.features
+        order = torch.argsort(inds[:, 0], descending=False)
+        return spconv.SparseConvTensor(
+            feats[order],
+            inds[order],
+            sparse_t.spatial_shape,
+            sparse_t.batch_size,
+        )
+
     def forward(self, sp_tensor, batch_size, calib, stride, x_trans_train, trans_param):
 
         if self.stride > 1:
             sp_tensor = self.down_layer(sp_tensor)
 
+        self.sort_sparse_tensor(sp_tensor)
         d3_feat1 = self.d3_conv1(sp_tensor)
         d3_feat2 = self.d3_conv2(d3_feat1)
 

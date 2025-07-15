@@ -8,7 +8,7 @@ DATA_CONFIG:
     MM_PATH: 'velodyne_depth'
     ROT_NUM: 3
     USE_VAN: True
-
+    MM: True
     DATA_SPLIT: {
         'train': train,
         'test': val

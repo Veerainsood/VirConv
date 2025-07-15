@@ -58,7 +58,8 @@ def build_dataloader(dataset_cfg, class_names, batch_size, dist, root_path=None,
         training=training,
         logger=logger,
     )
-
+    # print(dataset[0]['points_mm'][0])
+    # exit(0)
     if merge_all_iters_to_one_epoch:
         assert hasattr(dataset, 'merge_all_iters_to_one_epoch')
         dataset.merge_all_iters_to_one_epoch(merge=True, epochs=total_epochs)

@@ -209,6 +209,7 @@ class DatasetTemplate(torch_data.Dataset):
                 voxel_num_points: optional (num_voxels)
                 ...
         """
+        # print(data_dict['points'][0])
         if self.training:
             assert 'gt_boxes' in data_dict, 'gt_boxes should be provided for training'
 

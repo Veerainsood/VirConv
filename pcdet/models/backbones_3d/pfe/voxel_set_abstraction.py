@@ -2,7 +2,6 @@ import math
 import numpy as np
 import torch
 import torch.nn as nn
-
 from ....ops.pointnet2.pointnet2_stack import pointnet2_modules as pointnet2_stack_modules
 from ....ops.pointnet2.pointnet2_stack import pointnet2_utils as pointnet2_stack_utils
 from ....utils import common_utils
@@ -332,7 +331,7 @@ class VoxelSetAbstraction(nn.Module):
             features=xyz_features.contiguous(),
         )
         return pooled_features
-
+    from spconv.pytorch import SparseConvTensor
     def forward(self, batch_dict):
         """
         Args:
@@ -384,7 +383,23 @@ class VoxelSetAbstraction(nn.Module):
             point_features_list.append(pooled_features)
 
         for k, src_name in enumerate(self.SA_layer_names):
-            cur_coords = batch_dict['multi_scale_3d_features'][src_name].indices
+            
+            cur_tensor = batch_dict['multi_scale_3d_features'][src_name]
+            
+            sorted_idx = torch.argsort(cur_tensor.indices[:, 0])
+            
+            new_indices = cur_tensor.indices[sorted_idx]
+            new_features = cur_tensor.features[sorted_idx]
+            new = SparseConvTensor(
+                new_features,
+                new_indices,
+                cur_tensor.spatial_shape,   # same spatial dims
+                cur_tensor.batch_size       # same batch size
+            )
+            batch_dict['multi_scale_3d_features'][src_name] = new
+            
+            cur_coords = new.indices
+
             cur_features = batch_dict['multi_scale_3d_features'][src_name].features.contiguous()
 
             xyz = common_utils.get_voxel_centers(
