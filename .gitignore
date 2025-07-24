@@ -8,3 +8,4 @@ __pycache__
 .coverage output of code coverage app
 *.log
 .vscode/
+output/

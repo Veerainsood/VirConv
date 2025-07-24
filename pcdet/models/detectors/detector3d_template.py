@@ -8,7 +8,7 @@ from .. import backbones_2d, backbones_3d, dense_heads, roi_heads
 from ..backbones_2d import map_to_bev
 from ..backbones_3d import pfe, vfe
 from ..model_utils import model_nms_utils
-
+import pdb
 class Detector3DTemplate(nn.Module):
     def __init__(self, model_cfg, num_class, dataset,logger):
         super().__init__()
@@ -42,6 +42,7 @@ class Detector3DTemplate(nn.Module):
             'point_cloud_range': self.dataset.point_cloud_range,
             'voxel_size': self.dataset.voxel_size
         }
+        # breakpoint()
         for module_name in self.module_topology:
             module, model_info_dict = getattr(self, 'build_%s' % module_name)(
                 model_info_dict=model_info_dict
@@ -52,12 +53,13 @@ class Detector3DTemplate(nn.Module):
     def build_vfe(self, model_info_dict):
         if self.model_cfg.get('VFE', None) is None:
             return None, model_info_dict
-
+        # breakpoint()
         vfe_module = vfe.__all__[self.model_cfg.VFE.NAME](
             model_cfg=self.model_cfg.VFE,
             num_point_features=model_info_dict['num_rawpoint_features'],
             point_cloud_range=model_info_dict['point_cloud_range'],
             voxel_size=model_info_dict['voxel_size'],
+            grid_size=model_info_dict['grid_size']
         )
         model_info_dict['num_point_features'] = vfe_module.get_output_feature_dim()
         model_info_dict['module_list'].append(vfe_module)
@@ -96,7 +98,7 @@ class Detector3DTemplate(nn.Module):
             return None, model_info_dict
 
         chan=model_info_dict['num_bev_features']
-
+        # breakpoint()
         backbone_2d_module = backbones_2d.__all__[self.model_cfg.BACKBONE_2D.NAME](
             model_cfg=self.model_cfg.BACKBONE_2D,
             input_channels=chan,
@@ -126,8 +128,13 @@ class Detector3DTemplate(nn.Module):
         return pfe_module, model_info_dict
 
     def build_dense_head(self, model_info_dict):
+        # pdb.set_trace()
         if self.model_cfg.get('DENSE_HEAD', None) is None:
             return None, model_info_dict
+        
+        if 'num_bev_features_post' not in model_info_dict:
+            model_info_dict['num_bev_features_post'] = model_info_dict['num_bev_features']
+
         dense_head_module = dense_heads.__all__[self.model_cfg.DENSE_HEAD.NAME](
             model_cfg=self.model_cfg.DENSE_HEAD,
             input_channels=model_info_dict['num_bev_features_post'],

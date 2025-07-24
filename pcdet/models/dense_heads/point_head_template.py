@@ -33,17 +33,20 @@ class PointHeadTemplate(nn.Module):
             self.reg_loss_func = F.smooth_l1_loss
 
     @staticmethod
-    def make_fc_layers(fc_cfg, input_channels, output_channels):
+    def make_fc_layers(fc_cfg, input_channels, output_channels=None,linear=True):
         fc_layers = []
         c_in = input_channels
         for k in range(0, fc_cfg.__len__()):
             fc_layers.extend([
-                nn.Linear(c_in, fc_cfg[k], bias=False),
+                nn.Linear(c_in, fc_cfg[k], bias=False) if linear else nn.Conv1d(c_in, fc_cfg[k], kernel_size=1, bias=False),
                 nn.BatchNorm1d(fc_cfg[k]),
                 nn.ReLU(),
             ])
             c_in = fc_cfg[k]
-        fc_layers.append(nn.Linear(c_in, output_channels, bias=True))
+        if output_channels is not None:
+            fc_layers.append(
+                nn.Linear(c_in, output_channels, bias=True) if linear else nn.Conv1d(c_in, output_channels, kernel_size=1)
+            ) 
         return nn.Sequential(*fc_layers)
 
     def assign_stack_targets(self, points, gt_boxes, extend_gt_boxes=None,

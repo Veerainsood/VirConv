@@ -641,7 +641,8 @@ def do_coco_style_eval(gt_annos, dt_annos, current_classes, overlap_ranges,
         mAP_aos = mAP_aos.mean(-1)
     return mAP_bbox, mAP_bev, mAP_3d, mAP_aos
 
-
+import os
+import matplotlib.pyplot as plt
 def get_official_eval_result(gt_annos, dt_annos, current_classes, PR_detail_dict=None):
     overlap_0_7 = np.array([[0.7, 0.5, 0.5, 0.7,
                              0.5, 0.7], [0.7, 0.5, 0.5, 0.7, 0.5, 0.7],
@@ -680,18 +681,56 @@ def get_official_eval_result(gt_annos, dt_annos, current_classes, PR_detail_dict
     mAPbbox, mAPbev, mAP3d, mAPaos, mAPbbox_R40, mAPbev_R40, mAP3d_R40, mAPaos_R40 = do_eval(
         gt_annos, dt_annos, current_classes, min_overlaps, compute_aos, PR_detail_dict=PR_detail_dict)
 
+    difficulties = ['Easy','Moderate','Hard']
+
+    plot_dir = os.path.join(os.getcwd(), 'plots')
+    os.makedirs(plot_dir, exist_ok=True) 
+    overlapDict = {0: 'Overlap 70%', 1: 'Overlap 50%'}
+    # breakpoint()
+    for j , curcls in enumerate(current_classes):
+        
+        for i in range(min_overlaps.shape[0]):
+            
+            bbox = mAPbbox_R40[j,:,i] # num_class, difficulty , threshold
+            birds = mAPbev_R40[j,:,i]
+            _3D = mAP3d_R40[j,:,i]
+            if compute_aos:
+                aos = mAPaos_R40[j,:,i]
+            
+            plt.figure(figsize=(6,4))
+            plt.plot(difficulties, bbox,    marker='o', label='bbox AP')
+            plt.plot(difficulties, birds,     marker='o', label='bev AP')
+            plt.plot(difficulties, _3D,     marker='o', label='3d AP')
+            if compute_aos:
+                plt.plot(difficulties, aos,  marker='o', label='aos AP')
+            iou_e, iou_m, iou_h = min_overlaps[i, :, j]
+            try:
+                plt.title(
+                    f"{class_to_name[curcls]} AP at IoU thresholds\n" + 
+                    f"Easy: {iou_e:.2f}, Moderate: {iou_m:.2f}, Hard: {iou_h:.2f}\n"
+                    f"At Overlap: {overlapDict[i]}\n"
+                )
+            except Exception as e:
+                pass
+            plt.ylabel('AP (%)')
+            plt.xlabel('Difficulty')
+            plt.legend()
+            plt.tight_layout()
+            plt.savefig(f'plots/{class_to_name[curcls]}_AP_{overlapDict[i]}.png')
+            plt.close()
+
     ret_dict = {}
     for j, curcls in enumerate(current_classes):
         # mAP threshold array: [num_minoverlap, metric, class]
         # mAP result: [num_class, num_diff, num_minoverlap]
-        for i in range(min_overlaps.shape[0]):
+        for i in range(min_overlaps.shape[0]): # min overlaps 1st dim represents iou .7 or .5 and second one the difficulty...
             result += print_str(
                 (f"{class_to_name[curcls]} "
-                 "AP@{:.2f}, {:.2f}, {:.2f}:".format(*min_overlaps[i, :, j])))
-            result += print_str((f"bbox AP:{mAPbbox[j, 0, i]:.4f}, "
-                                 f"{mAPbbox[j, 1, i]:.4f}, "
-                                 f"{mAPbbox[j, 2, i]:.4f}"))
-            result += print_str((f"bev  AP:{mAPbev[j, 0, i]:.4f}, "
+                 "AP@{:.2f}, {:.2f}, {:.2f}: (i.e. considered ground truth if IOU with grnd truth box >= mentioned value for each category)".format(*min_overlaps[i, :, j])))
+            result += print_str((f"bbox AP:{mAPbbox[j, 0, i]:.4f}, " # classJ , easy , iou_Thresh
+                                 f"{mAPbbox[j, 1, i]:.4f}, " # classJ , med , iou_thresh
+                                 f"{mAPbbox[j, 2, i]:.4f}")) # classJ  , diff , iou_thresh
+            result += print_str((f"bev  AP:{mAPbev[j, 0, i]:.4f}, " # classJ , easy , iou_thesh
                                  f"{mAPbev[j, 1, i]:.4f}, "
                                  f"{mAPbev[j, 2, i]:.4f}"))
             result += print_str((f"3d   AP:{mAP3d[j, 0, i]:.4f}, "
@@ -729,25 +768,17 @@ def get_official_eval_result(gt_annos, dt_annos, current_classes, PR_detail_dict
                    ret_dict['%s_aos/hard_R40' % class_to_name[curcls]] = mAPaos_R40[j, 2, 0]
 
             if i == 0:
-                # ret_dict['%s_3d/easy' % class_to_name[curcls]] = mAP3d[j, 0, 0]
-                # ret_dict['%s_3d/moderate' % class_to_name[curcls]] = mAP3d[j, 1, 0]
-                # ret_dict['%s_3d/hard' % class_to_name[curcls]] = mAP3d[j, 2, 0]
-                # ret_dict['%s_bev/easy' % class_to_name[curcls]] = mAPbev[j, 0, 0]
-                # ret_dict['%s_bev/moderate' % class_to_name[curcls]] = mAPbev[j, 1, 0]
-                # ret_dict['%s_bev/hard' % class_to_name[curcls]] = mAPbev[j, 2, 0]
-                # ret_dict['%s_image/easy' % class_to_name[curcls]] = mAPbbox[j, 0, 0]
-                # ret_dict['%s_image/moderate' % class_to_name[curcls]] = mAPbbox[j, 1, 0]
-                # ret_dict['%s_image/hard' % class_to_name[curcls]] = mAPbbox[j, 2, 0]
 
-                ret_dict['%s_3d/easy_R40' % class_to_name[curcls]] = mAP3d_R40[j, 0, 0]
-                ret_dict['%s_3d/moderate_R40' % class_to_name[curcls]] = mAP3d_R40[j, 1, 0]
-                ret_dict['%s_3d/hard_R40' % class_to_name[curcls]] = mAP3d_R40[j, 2, 0]
-                ret_dict['%s_bev/easy_R40' % class_to_name[curcls]] = mAPbev_R40[j, 0, 0]
-                ret_dict['%s_bev/moderate_R40' % class_to_name[curcls]] = mAPbev_R40[j, 1, 0]
-                ret_dict['%s_bev/hard_R40' % class_to_name[curcls]] = mAPbev_R40[j, 2, 0]
-                ret_dict['%s_image/easy_R40' % class_to_name[curcls]] = mAPbbox_R40[j, 0, 0]
-                ret_dict['%s_image/moderate_R40' % class_to_name[curcls]] = mAPbbox_R40[j, 1, 0]
-                ret_dict['%s_image/hard_R40' % class_to_name[curcls]] = mAPbbox_R40[j, 2, 0]
+
+                ret_dict['%s_3d/easy_R40' % class_to_name[curcls]] = mAP3d_R40[j, 0, i] # mAP3D_R40 is (1,3,2) shape (num_classes,difficulty,thresholds)
+                ret_dict['%s_3d/moderate_R40' % class_to_name[curcls]] = mAP3d_R40[j, 1, i] # mAP3D_R40 is (1,3,2) shape (num_classes,difficulty,thresholds)
+                ret_dict['%s_3d/hard_R40' % class_to_name[curcls]] = mAP3d_R40[j, 2, i] #  mAP3D_R40 is (1,3,2) shape (num_classes,difficulty,thresholds)
+                ret_dict['%s_bev/easy_R40' % class_to_name[curcls]] = mAPbev_R40[j, 0, i]
+                ret_dict['%s_bev/moderate_R40' % class_to_name[curcls]] = mAPbev_R40[j, 1, i]
+                ret_dict['%s_bev/hard_R40' % class_to_name[curcls]] = mAPbev_R40[j, 2, i]
+                ret_dict['%s_image/easy_R40' % class_to_name[curcls]] = mAPbbox_R40[j, 0, i]
+                ret_dict['%s_image/moderate_R40' % class_to_name[curcls]] = mAPbbox_R40[j, 1, i]
+                ret_dict['%s_image/hard_R40' % class_to_name[curcls]] = mAPbbox_R40[j, 2, i]
 
     return result, ret_dict
 

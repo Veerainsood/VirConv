@@ -59,6 +59,15 @@ class VoxelGeneratorWrapper():
         return voxels, coordinates, num_points
 
 class DataProcessor(object):
+    
+    def calculate_grid_size(self, data_dict=None, config=None):
+        if data_dict is None:
+            grid_size = (self.point_cloud_range[3:6] - self.point_cloud_range[0:3]) / np.array(config.VOXEL_SIZE)
+            self.grid_size = np.round(grid_size).astype(np.int64)
+            self.voxel_size = config.VOXEL_SIZE
+            return partial(self.calculate_grid_size, config=config)
+        return data_dict
+    
     def __init__(self, processor_configs, point_cloud_range, training, rot_num, num_point_features):
         self.rot_num = rot_num
         self.point_cloud_range = point_cloud_range

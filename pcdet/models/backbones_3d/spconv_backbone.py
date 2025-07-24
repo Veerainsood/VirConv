@@ -84,24 +84,22 @@ def index2uv(indices, batch_size, calib, stride, x_trans_train, trans_param):
 
 
 def post_act_block(in_channels, out_channels, kernel_size, indice_key=None, stride=1, padding=0,
-                   conv_type='subm', norm_fn=None):
+                   conv_type='subm', norm_fn=None,dim=3):
+    
     if conv_type == 'subm':
-        conv = spconv.SubMConv3d(in_channels, out_channels, kernel_size, bias=False, indice_key=indice_key)
-        relu = nn.ReLU()
+        conv = getattr(spconv, f'SubMConv{dim}d')(in_channels, out_channels, kernel_size, bias=False, indice_key=indice_key)
     elif conv_type == 'spconv':
-        conv = spconv.SparseConv3d(in_channels, out_channels, kernel_size, stride=stride, padding=padding,
+        conv = getattr(spconv, f'SparseConv{dim}d')(in_channels, out_channels, kernel_size, stride=stride, padding=padding,
                                    bias=False, indice_key=indice_key)
-        relu = nn.ReLU(inplace=True)
     elif conv_type == 'inverseconv':
-        conv = spconv.SparseInverseConv3d(in_channels, out_channels, kernel_size, indice_key=indice_key, bias=False)
-        relu = nn.ReLU()
+        conv = getattr(spconv, f'SparseInverseConv{dim}d')(in_channels, out_channels, kernel_size, indice_key=indice_key, bias=False)
     else:
         raise NotImplementedError
 
     m = spconv.SparseSequential(
         conv,
         norm_fn(out_channels),
-        relu,
+        nn.ReLU(),
     )
 
     return m

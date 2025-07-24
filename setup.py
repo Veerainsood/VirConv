@@ -144,7 +144,6 @@ if __name__ == '__main__':
                     'src/interpolate_gpu.cu',
                     'src/sampling.cpp',
                     'src/sampling_gpu.cu',
-
                 ],
             ),
             make_cuda_ext(
