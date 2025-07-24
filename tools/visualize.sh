@@ -1,0 +1,1 @@
+python demo_missed.py  --cfg_file  cfgs/models/kitti/VirConv-T.yaml --data_path ../data/kitti --info_path ../data/kitti/kitti_infos_train.pkl --ckpt Virconv.pth 

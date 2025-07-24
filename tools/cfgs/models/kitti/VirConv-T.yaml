@@ -8,15 +8,14 @@ DATA_CONFIG:
     MM_PATH: 'velodyne_depth'
     ROT_NUM: 3
     USE_VAN: True
-    MM: True
     DATA_SPLIT: {
-        'train': train,
+        # 'train': train,
         'test': val
     }
 
     INFO_PATH: {
-        'train': [kitti_infos_train.pkl],
-        'test': [kitti_infos_test.pkl],
+        # 'train': [kitti_infos_train.pkl],
+        'test': [kitti_infos_val.pkl],
     }
 
     DATA_AUGMENTOR:
