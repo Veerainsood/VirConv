@@ -202,22 +202,11 @@ class NRConvBlock(nn.Module):
                                 padding=1,
                                 indice_key=('subm4' + indice_key))
 
-    def sort_sparse_tensor(self,sparse_t: spconv.SparseConvTensor) -> spconv.SparseConvTensor:
-        inds, feats = sparse_t.indices, sparse_t.features
-        order = torch.argsort(inds[:, 0], descending=False)
-        return spconv.SparseConvTensor(
-            feats[order],
-            inds[order],
-            sparse_t.spatial_shape,
-            sparse_t.batch_size,
-        )
-
     def forward(self, sp_tensor, batch_size, calib, stride, x_trans_train, trans_param):
 
         if self.stride > 1:
             sp_tensor = self.down_layer(sp_tensor)
 
-        self.sort_sparse_tensor(sp_tensor)
         d3_feat1 = self.d3_conv1(sp_tensor)
         d3_feat2 = self.d3_conv2(d3_feat1)
 
@@ -266,7 +255,7 @@ class VirConv8x(nn.Module):
         )
 
         self.conv2 = spconv.SparseSequential(
-            # [1600, 1408, 41] <- [800, 704, 21]
+            # [1600, 1408, 41] -> [800, 704, 21]
             block(num_filters[0], num_filters[1], 3, norm_fn=norm_fn, stride=2, padding=1, indice_key='spconv2',
                   conv_type='spconv'),
             block(num_filters[1], num_filters[1], 3, norm_fn=norm_fn, padding=1, indice_key='subm2'),
@@ -274,7 +263,7 @@ class VirConv8x(nn.Module):
         )
 
         self.conv3 = spconv.SparseSequential(
-            # [800, 704, 21] <- [400, 352, 11]
+            # [800, 704, 21] -> [400, 352, 11]
             block(num_filters[1], num_filters[2], 3, norm_fn=norm_fn, stride=2, padding=1, indice_key='spconv3',
                   conv_type='spconv'),
             block(num_filters[2], num_filters[2], 3, norm_fn=norm_fn, padding=1, indice_key='subm3'),
@@ -282,7 +271,7 @@ class VirConv8x(nn.Module):
         )
 
         self.conv4 = spconv.SparseSequential(
-            # [400, 352, 11] <- [200, 176, 5]
+            # [400, 352, 11] -> [200, 176, 5]
             block(num_filters[2], num_filters[3], 3, norm_fn=norm_fn, stride=2, padding=(0, 1, 1), indice_key='spconv4',
                   conv_type='spconv'),
             block(num_filters[3], num_filters[3], 3, norm_fn=norm_fn, padding=1, indice_key='subm4'),
@@ -345,6 +334,16 @@ class VirConv8x(nn.Module):
         )
         return this_conv3_tensor
 
+    def sort_sparse_tensor(self,sparse_t: spconv.SparseConvTensor) -> spconv.SparseConvTensor:
+        inds, feats = sparse_t.indices, sparse_t.features
+        order = torch.argsort(inds[:, 0], descending=False)
+        return spconv.SparseConvTensor(
+            feats[order],
+            inds[order],
+            sparse_t.spatial_shape,
+            sparse_t.batch_size,
+        )
+    
     def forward(self, batch_dict):
         """
         Args:
@@ -385,6 +384,7 @@ class VirConv8x(nn.Module):
                     spatial_shape=self.sparse_shape,
                     batch_size=batch_size
                 )
+                self.sort_sparse_tensor(input_sp_tensor)
                 x = self.conv_input(input_sp_tensor)
 
                 x_conv1 = self.conv1(x)
@@ -439,6 +439,7 @@ class VirConv8x(nn.Module):
                 spatial_shape=new_shape,
                 batch_size=batch_size
             )
+            self.sort_sparse_tensor(input_sp_tensor)
             x = self.conv_input(input_sp_tensor)
 
             x_conv1 = self.conv1(x)
