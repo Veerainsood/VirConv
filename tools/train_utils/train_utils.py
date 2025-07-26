@@ -8,7 +8,7 @@ import numpy as np
 from pcdet.models import load_data_to_gpu
 import copy
 import pcdet.datasets.augmentor.augmentor_utils as uti
-
+# from torch.autograd import detect_anomaly
 
 def train_one_epoch(model, optimizer, train_loader, model_func, lr_scheduler, accumulated_iter, optim_cfg,
                     rank, tbar, total_it_each_epoch, dataloader_iter, tb_log=None, leave_pbar=False):
@@ -41,9 +41,12 @@ def train_one_epoch(model, optimizer, train_loader, model_func, lr_scheduler, ac
 
         model.train()
 
-        loss, tb_dict, disp_dict = model_func(model, batch)
-        loss = loss/accus
         
+        loss, tb_dict, disp_dict = model_func(model, batch)
+            # if not torch.isfinite(loss):
+            #     import pdb; pdb.set_trace()
+        loss = loss/accus
+            
         loss.backward()
 
         if ((cur_it + 1) % accus) == 0:

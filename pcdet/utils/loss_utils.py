@@ -92,6 +92,7 @@ class WeightedSmoothL1Loss(nn.Module):
         """
         super(WeightedSmoothL1Loss, self).__init__()
         self.beta = beta
+        self.code_weights = code_weights
         if code_weights is not None:
             self.code_weights = np.array(code_weights, dtype=np.float32)
             self.code_weights = torch.from_numpy(self.code_weights).cuda()
@@ -123,6 +124,7 @@ class WeightedSmoothL1Loss(nn.Module):
 
         diff = input - target
         # code-wise weighting
+        # breakpoint()
         if self.code_weights is not None:
             diff = diff * self.code_weights.view(1, 1, -1)
 
@@ -130,8 +132,10 @@ class WeightedSmoothL1Loss(nn.Module):
 
         # anchor-wise weighting
         if weights is not None:
-            assert weights.shape[0] == loss.shape[0] and weights.shape[1] == loss.shape[1]
-            loss = loss * weights.unsqueeze(-1)
+            if len(weights.shape) == len(loss.shape) - 1:
+                weights = weights.unsqueeze(-1)
+            assert len(weights.shape) == len(loss.shape)
+            loss = loss * weights
 
         return loss
 
@@ -230,7 +234,7 @@ class WeightedCrossEntropyLoss(nn.Module):
         return loss
 
 
-def get_corner_loss_lidar(pred_bbox3d: torch.Tensor, gt_bbox3d: torch.Tensor):
+def get_corner_loss_lidar(pred_bbox3d: torch.Tensor, gt_bbox3d: torch.Tensor, p=2):
     """
     Args:
         pred_bbox3d: (N, 7) float Tensor.
@@ -247,11 +251,16 @@ def get_corner_loss_lidar(pred_bbox3d: torch.Tensor, gt_bbox3d: torch.Tensor):
     gt_bbox3d_flip = gt_bbox3d.clone()
     gt_bbox3d_flip[:, 6] += np.pi
     gt_box_corners_flip = box_utils.boxes_to_corners_3d(gt_bbox3d_flip)
-    # (N, 8)
-    corner_dist = torch.min(torch.norm(pred_box_corners - gt_box_corners, dim=2),
-                            torch.norm(pred_box_corners - gt_box_corners_flip, dim=2))
-    # (N, 8)
-    corner_loss = WeightedSmoothL1Loss.smooth_l1_loss(corner_dist, beta=1.0)
+    if p == 2:
+        corner_dist = torch.min(torch.norm(pred_box_corners - gt_box_corners, dim=2),
+        torch.norm(pred_box_corners - gt_box_corners_flip, dim=2))
+        # (N, 8)
+        corner_loss = WeightedSmoothL1Loss.smooth_l1_loss(corner_dist, beta=1.0)
+    else:
+        # (N, 8, 3)
+        corner_loss = WeightedSmoothL1Loss.smooth_l1_loss(pred_box_corners - gt_box_corners, beta=1.0)
+        corner_loss_flip = WeightedSmoothL1Loss.smooth_l1_loss(pred_box_corners - gt_box_corners_flip, beta=1.0)
+        corner_loss = torch.min(corner_loss.sum(dim=2), corner_loss_flip.sum(dim=2))
 
     return corner_loss.mean(dim=1)
 

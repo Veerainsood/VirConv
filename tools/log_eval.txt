@@ -1,0 +1,542 @@
+2025-07-25 15:39:52,149   INFO  **********************Start logging**********************
+2025-07-25 15:39:52,149   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 15:39:52,149   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 15:39:52,149   INFO  data_path        ../data/kitti
+2025-07-25 15:39:52,149   INFO  ckpt             PointVit.pth
+2025-07-25 15:39:52,149   INFO  ext              .bin
+2025-07-25 15:39:52,149   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 15:39:52,149   INFO  frames           
+2025-07-25 15:39:52,149   INFO  batch_size       14
+2025-07-25 15:40:51,915   INFO  **********************Start logging**********************
+2025-07-25 15:40:51,915   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 15:40:51,915   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 15:40:51,915   INFO  data_path        ../data/kitti
+2025-07-25 15:40:51,915   INFO  ckpt             PointVit.pth
+2025-07-25 15:40:51,915   INFO  ext              .bin
+2025-07-25 15:40:51,915   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 15:40:51,915   INFO  frames           
+2025-07-25 15:40:51,915   INFO  batch_size       14
+2025-07-25 15:40:51,916   INFO  Loading KITTI dataset
+2025-07-25 15:40:51,965   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 15:40:51,991   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 15:40:52,137   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 15:40:52,145   INFO  ==> Done (loaded 381/381)
+2025-07-25 15:41:07,282   INFO  **********************Start logging**********************
+2025-07-25 15:41:07,282   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 15:41:07,282   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 15:41:07,282   INFO  data_path        ../data/kitti
+2025-07-25 15:41:07,282   INFO  ckpt             PointVit.pth
+2025-07-25 15:41:07,282   INFO  ext              .bin
+2025-07-25 15:41:07,282   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 15:41:07,282   INFO  frames           
+2025-07-25 15:41:07,282   INFO  batch_size       14
+2025-07-25 15:41:07,282   INFO  Loading KITTI dataset
+2025-07-25 15:41:07,330   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 15:41:07,359   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 15:41:07,503   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 15:41:07,510   INFO  ==> Done (loaded 381/381)
+2025-07-25 15:42:56,272   INFO  **********************Start logging**********************
+2025-07-25 15:42:56,272   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 15:42:56,272   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 15:42:56,272   INFO  data_path        ../data/kitti
+2025-07-25 15:42:56,272   INFO  ckpt             PointVit.pth
+2025-07-25 15:42:56,272   INFO  ext              .bin
+2025-07-25 15:42:56,272   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 15:42:56,272   INFO  frames           
+2025-07-25 15:42:56,272   INFO  batch_size       14
+2025-07-25 15:42:56,272   INFO  Loading KITTI dataset
+2025-07-25 15:42:56,322   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 15:42:56,348   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 15:42:56,489   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 15:42:56,497   INFO  ==> Done (loaded 381/381)
+2025-07-25 15:43:16,602   INFO  **********************Start logging**********************
+2025-07-25 15:43:16,602   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 15:43:16,603   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 15:43:16,603   INFO  data_path        ../data/kitti
+2025-07-25 15:43:16,603   INFO  ckpt             PointVit.pth
+2025-07-25 15:43:16,603   INFO  ext              .bin
+2025-07-25 15:43:16,603   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 15:43:16,603   INFO  frames           
+2025-07-25 15:43:16,603   INFO  batch_size       14
+2025-07-25 15:43:16,603   INFO  Loading KITTI dataset
+2025-07-25 15:43:16,650   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 15:43:16,677   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 15:43:16,823   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 15:43:16,831   INFO  ==> Done (loaded 381/381)
+2025-07-25 15:43:43,203   INFO  **********************Start logging**********************
+2025-07-25 15:43:43,203   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 15:43:43,203   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 15:43:43,203   INFO  data_path        ../data/kitti
+2025-07-25 15:43:43,203   INFO  ckpt             PointVit.pth
+2025-07-25 15:43:43,203   INFO  ext              .bin
+2025-07-25 15:43:43,203   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 15:43:43,203   INFO  frames           
+2025-07-25 15:43:43,203   INFO  batch_size       14
+2025-07-25 15:43:43,204   INFO  Loading KITTI dataset
+2025-07-25 15:43:43,253   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 15:43:43,280   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 15:43:43,423   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 15:43:43,431   INFO  ==> Done (loaded 381/381)
+2025-07-25 15:43:43,437   INFO  *************** EPOCH Visualization *****************
+2025-07-25 15:45:39,890   INFO  **********************Start logging**********************
+2025-07-25 15:45:39,890   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 15:45:39,890   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 15:45:39,890   INFO  data_path        ../data/kitti
+2025-07-25 15:45:39,890   INFO  ckpt             PointVit.pth
+2025-07-25 15:45:39,890   INFO  ext              .bin
+2025-07-25 15:45:39,890   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 15:45:39,890   INFO  frames           
+2025-07-25 15:45:39,890   INFO  batch_size       14
+2025-07-25 15:45:39,891   INFO  Loading KITTI dataset
+2025-07-25 15:45:39,943   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 15:45:39,971   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 15:45:40,118   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 15:45:40,125   INFO  ==> Done (loaded 381/381)
+2025-07-25 15:47:21,415   INFO  **********************Start logging**********************
+2025-07-25 15:47:21,415   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 15:47:21,415   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 15:47:21,415   INFO  data_path        ../data/kitti
+2025-07-25 15:47:21,415   INFO  ckpt             PointVit.pth
+2025-07-25 15:47:21,415   INFO  ext              .bin
+2025-07-25 15:47:21,415   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 15:47:21,415   INFO  frames           
+2025-07-25 15:47:21,415   INFO  batch_size       14
+2025-07-25 15:47:21,415   INFO  Loading KITTI dataset
+2025-07-25 15:47:21,463   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 15:47:21,489   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 15:47:21,635   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 15:47:21,642   INFO  ==> Done (loaded 381/381)
+2025-07-25 15:47:55,463   INFO  **********************Start logging**********************
+2025-07-25 15:47:55,463   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 15:47:55,463   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 15:47:55,463   INFO  data_path        ../data/kitti
+2025-07-25 15:47:55,463   INFO  ckpt             PointVit.pth
+2025-07-25 15:47:55,463   INFO  ext              .bin
+2025-07-25 15:47:55,463   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 15:47:55,463   INFO  frames           
+2025-07-25 15:47:55,463   INFO  batch_size       14
+2025-07-25 15:47:55,464   INFO  Loading KITTI dataset
+2025-07-25 15:47:55,512   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 15:47:55,538   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 15:47:55,681   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 15:47:55,689   INFO  ==> Done (loaded 381/381)
+2025-07-25 15:48:16,334   INFO  **********************Start logging**********************
+2025-07-25 15:48:16,334   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 15:48:16,334   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 15:48:16,334   INFO  data_path        ../data/kitti
+2025-07-25 15:48:16,334   INFO  ckpt             PointVit.pth
+2025-07-25 15:48:16,334   INFO  ext              .bin
+2025-07-25 15:48:16,334   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 15:48:16,334   INFO  frames           
+2025-07-25 15:48:16,334   INFO  batch_size       14
+2025-07-25 15:48:16,335   INFO  Loading KITTI dataset
+2025-07-25 15:48:16,382   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 15:48:16,409   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 15:48:16,551   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 15:48:16,559   INFO  ==> Done (loaded 381/381)
+2025-07-25 15:48:16,565   INFO  *************** EPOCH Visualization *****************
+2025-07-25 15:55:02,423   INFO  **********************Start logging**********************
+2025-07-25 15:55:02,423   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 15:55:02,423   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 15:55:02,423   INFO  data_path        ../data/kitti
+2025-07-25 15:55:02,423   INFO  ckpt             PointVit.pth
+2025-07-25 15:55:02,423   INFO  ext              .bin
+2025-07-25 15:55:02,423   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 15:55:02,423   INFO  frames           
+2025-07-25 15:55:02,423   INFO  batch_size       14
+2025-07-25 15:55:02,423   INFO  Loading KITTI dataset
+2025-07-25 15:55:02,478   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 15:55:02,505   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 15:55:02,665   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 15:55:02,672   INFO  ==> Done (loaded 381/381)
+2025-07-25 15:55:02,678   INFO  *************** EPOCH Visualization *****************
+2025-07-25 15:56:50,380   INFO  **********************Start logging**********************
+2025-07-25 15:56:50,380   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 15:56:50,381   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 15:56:50,381   INFO  data_path        ../data/kitti
+2025-07-25 15:56:50,381   INFO  ckpt             PointVit.pth
+2025-07-25 15:56:50,381   INFO  ext              .bin
+2025-07-25 15:56:50,381   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 15:56:50,381   INFO  frames           
+2025-07-25 15:56:50,381   INFO  batch_size       14
+2025-07-25 15:56:50,381   INFO  Loading KITTI dataset
+2025-07-25 15:56:50,430   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 15:56:50,458   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 15:56:50,599   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 15:56:50,606   INFO  ==> Done (loaded 381/381)
+2025-07-25 15:56:50,613   INFO  *************** EPOCH Visualization *****************
+2025-07-25 15:57:20,064   INFO  **********************Start logging**********************
+2025-07-25 15:57:20,064   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 15:57:20,064   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 15:57:20,064   INFO  data_path        ../data/kitti
+2025-07-25 15:57:20,064   INFO  ckpt             PointVit.pth
+2025-07-25 15:57:20,064   INFO  ext              .bin
+2025-07-25 15:57:20,064   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 15:57:20,064   INFO  frames           
+2025-07-25 15:57:20,064   INFO  batch_size       14
+2025-07-25 15:57:20,065   INFO  Loading KITTI dataset
+2025-07-25 15:57:20,112   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 15:57:20,139   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 15:57:20,285   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 15:57:20,293   INFO  ==> Done (loaded 381/381)
+2025-07-25 15:57:20,300   INFO  *************** EPOCH Visualization *****************
+2025-07-25 15:58:17,577   INFO  **********************Start logging**********************
+2025-07-25 15:58:17,577   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 15:58:17,577   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 15:58:17,577   INFO  data_path        ../data/kitti
+2025-07-25 15:58:17,577   INFO  ckpt             PointVit.pth
+2025-07-25 15:58:17,577   INFO  ext              .bin
+2025-07-25 15:58:17,577   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 15:58:17,577   INFO  frames           
+2025-07-25 15:58:17,577   INFO  batch_size       14
+2025-07-25 15:58:17,577   INFO  Loading KITTI dataset
+2025-07-25 15:58:17,625   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 15:58:17,651   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 15:58:17,797   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 15:58:17,805   INFO  ==> Done (loaded 381/381)
+2025-07-25 15:58:17,812   INFO  *************** EPOCH Visualization *****************
+2025-07-25 15:58:32,874   INFO  **********************Start logging**********************
+2025-07-25 15:58:32,874   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 15:58:32,874   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 15:58:32,874   INFO  data_path        ../data/kitti
+2025-07-25 15:58:32,874   INFO  ckpt             PointVit.pth
+2025-07-25 15:58:32,874   INFO  ext              .bin
+2025-07-25 15:58:32,874   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 15:58:32,874   INFO  frames           
+2025-07-25 15:58:32,874   INFO  batch_size       14
+2025-07-25 15:58:32,874   INFO  Loading KITTI dataset
+2025-07-25 15:58:32,922   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 15:58:32,949   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 15:58:33,096   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 15:58:33,103   INFO  ==> Done (loaded 381/381)
+2025-07-25 15:58:33,110   INFO  *************** EPOCH Visualization *****************
+2025-07-25 16:00:52,427   INFO  **********************Start logging**********************
+2025-07-25 16:00:52,428   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 16:00:52,428   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 16:00:52,428   INFO  data_path        ../data/kitti
+2025-07-25 16:00:52,428   INFO  ckpt             PointVit.pth
+2025-07-25 16:00:52,428   INFO  ext              .bin
+2025-07-25 16:00:52,428   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 16:00:52,428   INFO  frames           
+2025-07-25 16:00:52,428   INFO  batch_size       14
+2025-07-25 16:00:52,428   INFO  Loading KITTI dataset
+2025-07-25 16:00:52,475   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 16:00:52,502   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 16:00:52,648   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 16:00:52,655   INFO  ==> Done (loaded 381/381)
+2025-07-25 16:00:52,667   INFO  *************** EPOCH Visualization *****************
+2025-07-25 16:05:13,605   INFO  **********************Start logging**********************
+2025-07-25 16:05:13,605   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 16:05:13,605   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 16:05:13,605   INFO  data_path        ../data/kitti
+2025-07-25 16:05:13,605   INFO  ckpt             PointVit.pth
+2025-07-25 16:05:13,605   INFO  ext              .bin
+2025-07-25 16:05:13,605   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 16:05:13,605   INFO  frames           
+2025-07-25 16:05:13,605   INFO  batch_size       14
+2025-07-25 16:05:13,605   INFO  Loading KITTI dataset
+2025-07-25 16:05:13,652   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 16:05:13,678   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 16:05:13,828   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 16:05:13,836   INFO  ==> Done (loaded 381/381)
+2025-07-25 16:05:13,842   INFO  *************** EPOCH Visualization *****************
+2025-07-25 16:05:51,957   INFO  **********************Start logging**********************
+2025-07-25 16:05:51,957   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 16:05:51,958   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 16:05:51,958   INFO  data_path        ../data/kitti
+2025-07-25 16:05:51,958   INFO  ckpt             PointVit.pth
+2025-07-25 16:05:51,958   INFO  ext              .bin
+2025-07-25 16:05:51,958   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 16:05:51,958   INFO  frames           
+2025-07-25 16:05:51,958   INFO  batch_size       14
+2025-07-25 16:05:51,958   INFO  Loading KITTI dataset
+2025-07-25 16:05:52,006   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 16:05:52,032   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 16:05:52,177   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 16:05:52,185   INFO  ==> Done (loaded 381/381)
+2025-07-25 16:05:52,191   INFO  *************** EPOCH Visualization *****************
+2025-07-25 16:08:01,608   INFO  **********************Start logging**********************
+2025-07-25 16:08:01,608   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 16:08:01,608   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 16:08:01,608   INFO  data_path        ../data/kitti
+2025-07-25 16:08:01,608   INFO  ckpt             PointVit.pth
+2025-07-25 16:08:01,608   INFO  ext              .bin
+2025-07-25 16:08:01,608   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 16:08:01,608   INFO  frames           
+2025-07-25 16:08:01,608   INFO  batch_size       14
+2025-07-25 16:08:01,609   INFO  Loading KITTI dataset
+2025-07-25 16:08:01,656   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 16:08:01,682   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 16:08:01,833   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 16:08:01,840   INFO  ==> Done (loaded 381/381)
+2025-07-25 16:08:01,847   INFO  *************** EPOCH Visualization *****************
+2025-07-25 16:09:16,355   INFO  **********************Start logging**********************
+2025-07-25 16:09:16,356   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 16:09:16,356   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 16:09:16,356   INFO  data_path        ../data/kitti
+2025-07-25 16:09:16,356   INFO  ckpt             PointVit.pth
+2025-07-25 16:09:16,356   INFO  ext              .bin
+2025-07-25 16:09:16,356   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 16:09:16,356   INFO  frames           
+2025-07-25 16:09:16,356   INFO  batch_size       14
+2025-07-25 16:09:16,356   INFO  Loading KITTI dataset
+2025-07-25 16:09:16,404   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 16:09:16,431   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 16:09:16,575   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 16:09:16,583   INFO  ==> Done (loaded 381/381)
+2025-07-25 16:09:16,590   INFO  *************** EPOCH Visualization *****************
+2025-07-25 16:09:47,456   INFO  **********************Start logging**********************
+2025-07-25 16:09:47,456   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 16:09:47,457   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 16:09:47,457   INFO  data_path        ../data/kitti
+2025-07-25 16:09:47,457   INFO  ckpt             PointVit.pth
+2025-07-25 16:09:47,457   INFO  ext              .bin
+2025-07-25 16:09:47,457   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 16:09:47,457   INFO  frames           
+2025-07-25 16:09:47,457   INFO  batch_size       14
+2025-07-25 16:09:47,457   INFO  Loading KITTI dataset
+2025-07-25 16:09:47,504   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 16:09:47,531   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 16:09:47,684   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 16:09:47,692   INFO  ==> Done (loaded 381/381)
+2025-07-25 16:09:47,698   INFO  *************** EPOCH Visualization *****************
+2025-07-25 16:11:19,290   INFO  **********************Start logging**********************
+2025-07-25 16:11:19,290   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 16:11:19,290   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 16:11:19,290   INFO  data_path        ../data/kitti
+2025-07-25 16:11:19,290   INFO  ckpt             PointVit.pth
+2025-07-25 16:11:19,290   INFO  ext              .bin
+2025-07-25 16:11:19,290   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 16:11:19,290   INFO  frames           
+2025-07-25 16:11:19,290   INFO  batch_size       14
+2025-07-25 16:11:19,290   INFO  Loading KITTI dataset
+2025-07-25 16:11:19,337   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 16:11:19,363   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 16:11:19,514   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 16:11:19,522   INFO  ==> Done (loaded 381/381)
+2025-07-25 16:11:19,528   INFO  *************** EPOCH Visualization *****************
+2025-07-25 16:13:20,410   INFO  **********************Start logging**********************
+2025-07-25 16:13:20,410   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 16:13:20,410   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 16:13:20,410   INFO  data_path        ../data/kitti
+2025-07-25 16:13:20,410   INFO  ckpt             PointVit.pth
+2025-07-25 16:13:20,410   INFO  ext              .bin
+2025-07-25 16:13:20,410   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 16:13:20,410   INFO  frames           
+2025-07-25 16:13:20,410   INFO  batch_size       14
+2025-07-25 16:13:20,410   INFO  Loading KITTI dataset
+2025-07-25 16:13:20,457   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 16:13:20,484   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 16:13:20,635   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 16:13:20,642   INFO  ==> Done (loaded 381/381)
+2025-07-25 16:13:20,649   INFO  *************** EPOCH Visualization *****************
+2025-07-25 16:22:31,848   INFO  **********************Start logging**********************
+2025-07-25 16:22:31,848   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 16:22:31,848   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 16:22:31,848   INFO  data_path        ../data/kitti
+2025-07-25 16:22:31,848   INFO  ckpt             PointVit.pth
+2025-07-25 16:22:31,848   INFO  ext              .bin
+2025-07-25 16:22:31,848   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 16:22:31,848   INFO  frames           
+2025-07-25 16:22:31,848   INFO  batch_size       14
+2025-07-25 16:22:31,848   INFO  Loading KITTI dataset
+2025-07-25 16:22:31,899   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 16:22:31,926   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 16:22:32,084   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 16:22:32,091   INFO  ==> Done (loaded 381/381)
+2025-07-25 16:22:32,098   INFO  *************** EPOCH Visualization *****************
+2025-07-25 16:24:42,360   INFO  **********************Start logging**********************
+2025-07-25 16:24:42,360   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 16:24:42,360   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 16:24:42,360   INFO  data_path        ../data/kitti
+2025-07-25 16:24:42,360   INFO  ckpt             PointVit.pth
+2025-07-25 16:24:42,360   INFO  ext              .bin
+2025-07-25 16:24:42,360   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 16:24:42,360   INFO  frames           
+2025-07-25 16:24:42,360   INFO  batch_size       14
+2025-07-25 16:24:42,360   INFO  Loading KITTI dataset
+2025-07-25 16:24:42,408   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 16:24:42,435   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 16:24:42,576   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 16:24:42,583   INFO  ==> Done (loaded 381/381)
+2025-07-25 16:24:42,590   INFO  *************** EPOCH Visualization *****************
+2025-07-25 16:29:44,670   INFO  **********************Start logging**********************
+2025-07-25 16:29:44,670   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 16:29:44,670   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 16:29:44,670   INFO  data_path        ../data/kitti
+2025-07-25 16:29:44,670   INFO  ckpt             PointVit.pth
+2025-07-25 16:29:44,670   INFO  ext              .bin
+2025-07-25 16:29:44,670   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 16:29:44,670   INFO  frames           
+2025-07-25 16:29:44,670   INFO  batch_size       14
+2025-07-25 16:29:44,670   INFO  Loading KITTI dataset
+2025-07-25 16:29:44,717   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 16:29:44,744   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 16:29:44,889   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 16:29:44,896   INFO  ==> Done (loaded 381/381)
+2025-07-25 16:29:44,903   INFO  *************** EPOCH Visualization *****************
+2025-07-25 16:31:16,276   INFO  **********************Start logging**********************
+2025-07-25 16:31:16,276   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 16:31:16,276   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 16:31:16,276   INFO  data_path        ../data/kitti
+2025-07-25 16:31:16,276   INFO  ckpt             PointVit.pth
+2025-07-25 16:31:16,276   INFO  ext              .bin
+2025-07-25 16:31:16,276   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 16:31:16,276   INFO  frames           
+2025-07-25 16:31:16,276   INFO  batch_size       14
+2025-07-25 16:31:16,277   INFO  Loading KITTI dataset
+2025-07-25 16:31:16,324   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 16:31:16,350   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 16:31:16,504   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 16:31:16,512   INFO  ==> Done (loaded 381/381)
+2025-07-25 16:31:16,518   INFO  *************** EPOCH Visualization *****************
+2025-07-25 16:32:42,277   INFO  **********************Start logging**********************
+2025-07-25 16:32:42,277   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 16:32:42,277   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 16:32:42,277   INFO  data_path        ../data/kitti
+2025-07-25 16:32:42,277   INFO  ckpt             PointVit.pth
+2025-07-25 16:32:42,277   INFO  ext              .bin
+2025-07-25 16:32:42,277   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 16:32:42,277   INFO  frames           
+2025-07-25 16:32:42,277   INFO  batch_size       14
+2025-07-25 16:32:42,278   INFO  Loading KITTI dataset
+2025-07-25 16:32:42,326   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 16:32:42,352   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 16:32:42,497   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 16:32:42,505   INFO  ==> Done (loaded 381/381)
+2025-07-25 16:32:42,511   INFO  *************** EPOCH Visualization *****************
+2025-07-25 16:37:45,517   INFO  **********************Start logging**********************
+2025-07-25 16:37:45,517   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 16:37:45,517   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 16:37:45,517   INFO  data_path        ../data/kitti
+2025-07-25 16:37:45,517   INFO  ckpt             PointVit.pth
+2025-07-25 16:37:45,517   INFO  ext              .bin
+2025-07-25 16:37:45,517   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 16:37:45,518   INFO  frames           
+2025-07-25 16:37:45,518   INFO  batch_size       14
+2025-07-25 16:37:45,518   INFO  Loading KITTI dataset
+2025-07-25 16:37:45,565   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 16:37:45,592   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 16:37:45,740   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 16:37:45,747   INFO  ==> Done (loaded 381/381)
+2025-07-25 16:37:45,754   INFO  *************** EPOCH Visualization *****************
+2025-07-25 16:38:58,795   INFO  **********************Start logging**********************
+2025-07-25 16:38:58,795   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 16:38:58,795   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 16:38:58,795   INFO  data_path        ../data/kitti
+2025-07-25 16:38:58,795   INFO  ckpt             PointVit.pth
+2025-07-25 16:38:58,795   INFO  ext              .bin
+2025-07-25 16:38:58,795   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 16:38:58,795   INFO  frames           
+2025-07-25 16:38:58,795   INFO  batch_size       14
+2025-07-25 16:38:58,796   INFO  Loading KITTI dataset
+2025-07-25 16:38:58,845   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 16:38:58,872   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 16:38:59,014   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 16:38:59,022   INFO  ==> Done (loaded 381/381)
+2025-07-25 16:38:59,028   INFO  *************** EPOCH Visualization *****************
+2025-07-25 16:39:17,356   INFO  **********************Start logging**********************
+2025-07-25 16:39:17,356   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 16:39:17,356   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 16:39:17,356   INFO  data_path        ../data/kitti
+2025-07-25 16:39:17,356   INFO  ckpt             PointVit.pth
+2025-07-25 16:39:17,356   INFO  ext              .bin
+2025-07-25 16:39:17,356   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 16:39:17,356   INFO  frames           
+2025-07-25 16:39:17,356   INFO  batch_size       14
+2025-07-25 16:39:17,356   INFO  Loading KITTI dataset
+2025-07-25 16:39:17,406   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 16:39:17,432   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 16:39:17,577   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 16:39:17,584   INFO  ==> Done (loaded 381/381)
+2025-07-25 16:39:17,591   INFO  *************** EPOCH Visualization *****************
+2025-07-25 16:40:44,656   INFO  **********************Start logging**********************
+2025-07-25 16:40:44,656   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 16:40:44,656   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 16:40:44,656   INFO  data_path        ../data/kitti
+2025-07-25 16:40:44,656   INFO  ckpt             PointVit.pth
+2025-07-25 16:40:44,656   INFO  ext              .bin
+2025-07-25 16:40:44,656   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 16:40:44,656   INFO  frames           
+2025-07-25 16:40:44,656   INFO  batch_size       14
+2025-07-25 16:40:44,656   INFO  Loading KITTI dataset
+2025-07-25 16:40:44,704   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 16:40:44,734   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 16:40:44,882   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 16:40:44,889   INFO  ==> Done (loaded 381/381)
+2025-07-25 16:40:44,895   INFO  *************** EPOCH Visualization *****************
+2025-07-25 16:44:09,739   INFO  **********************Start logging**********************
+2025-07-25 16:44:09,739   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 16:44:09,739   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 16:44:09,739   INFO  data_path        ../data/kitti
+2025-07-25 16:44:09,739   INFO  ckpt             PointVit.pth
+2025-07-25 16:44:09,739   INFO  ext              .bin
+2025-07-25 16:44:09,739   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 16:44:09,739   INFO  frames           
+2025-07-25 16:44:09,739   INFO  batch_size       14
+2025-07-25 16:44:09,740   INFO  Loading KITTI dataset
+2025-07-25 16:44:09,788   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 16:44:09,815   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 16:44:09,962   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 16:44:09,969   INFO  ==> Done (loaded 381/381)
+2025-07-25 16:44:09,975   INFO  *************** EPOCH Visualization *****************
+2025-07-25 16:47:55,591   INFO  **********************Start logging**********************
+2025-07-25 16:47:55,591   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 16:47:55,591   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 16:47:55,591   INFO  data_path        ../data/kitti
+2025-07-25 16:47:55,591   INFO  ckpt             PointVit.pth
+2025-07-25 16:47:55,591   INFO  ext              .bin
+2025-07-25 16:47:55,591   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 16:47:55,591   INFO  frames           
+2025-07-25 16:47:55,591   INFO  batch_size       14
+2025-07-25 16:47:55,592   INFO  Loading KITTI dataset
+2025-07-25 16:47:55,641   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 16:47:55,667   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 16:47:55,811   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 16:47:55,818   INFO  ==> Done (loaded 381/381)
+2025-07-25 16:47:55,824   INFO  *************** EPOCH Visualization *****************
+2025-07-25 16:49:52,461   INFO  **********************Start logging**********************
+2025-07-25 16:49:52,461   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 16:49:52,461   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 16:49:52,461   INFO  data_path        ../data/kitti
+2025-07-25 16:49:52,461   INFO  ckpt             PointVit.pth
+2025-07-25 16:49:52,461   INFO  ext              .bin
+2025-07-25 16:49:52,461   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 16:49:52,461   INFO  frames           
+2025-07-25 16:49:52,461   INFO  batch_size       14
+2025-07-25 16:49:52,461   INFO  Loading KITTI dataset
+2025-07-25 16:49:52,509   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 16:49:52,535   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 16:49:52,677   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 16:49:52,685   INFO  ==> Done (loaded 381/381)
+2025-07-25 16:49:52,691   INFO  *************** EPOCH Visualization *****************
+2025-07-25 16:51:37,945   INFO  **********************Start logging**********************
+2025-07-25 16:51:37,945   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 16:51:37,945   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 16:51:37,945   INFO  data_path        ../data/kitti
+2025-07-25 16:51:37,945   INFO  ckpt             PointVit.pth
+2025-07-25 16:51:37,945   INFO  ext              .bin
+2025-07-25 16:51:37,945   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 16:51:37,945   INFO  frames           
+2025-07-25 16:51:37,945   INFO  batch_size       14
+2025-07-25 16:51:37,945   INFO  Loading KITTI dataset
+2025-07-25 16:51:37,992   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 16:51:38,019   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 16:51:38,166   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 16:51:38,175   INFO  ==> Done (loaded 381/381)
+2025-07-25 16:51:38,181   INFO  *************** EPOCH Visualization *****************
+2025-07-25 16:52:12,738   INFO  **********************Start logging**********************
+2025-07-25 16:52:12,738   INFO  CUDA_VISIBLE_DEVICES=ALL
+2025-07-25 16:52:12,738   INFO  cfg_file         cfgs/models/kitti/PointVit.yaml
+2025-07-25 16:52:12,738   INFO  data_path        ../data/kitti
+2025-07-25 16:52:12,738   INFO  ckpt             PointVit.pth
+2025-07-25 16:52:12,739   INFO  ext              .bin
+2025-07-25 16:52:12,739   INFO  info_path        ../data/kitti/kitti_dbinfos_train_mm.pkl
+2025-07-25 16:52:12,739   INFO  frames           
+2025-07-25 16:52:12,739   INFO  batch_size       14
+2025-07-25 16:52:12,739   INFO  Loading KITTI dataset
+2025-07-25 16:52:12,786   INFO  Total samples for KITTI dataset: 3769
+2025-07-25 16:52:12,813   INFO  ==> Loading parameters from checkpoint PointVit.pth to GPU
+2025-07-25 16:52:12,960   INFO  ==> Checkpoint trained from version: pcdet+0.5.1+8b143d6+pyf061777
+2025-07-25 16:52:12,969   INFO  ==> Done (loaded 381/381)
+2025-07-25 16:52:12,975   INFO  *************** EPOCH Visualization *****************

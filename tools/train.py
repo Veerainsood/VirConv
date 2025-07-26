@@ -20,7 +20,7 @@ warnings.filterwarnings("ignore")
 
 def parse_config():
     parser = argparse.ArgumentParser(description='arg parser')
-    parser.add_argument('--cfg_file', type=str, default="cfgs/models/kitti/VirConv-T.yaml", help='specify the config for training')
+    parser.add_argument('--cfg_file', type=str, default="cfgs/models/kitti/PointVit.yaml", help='specify the config for training')
     parser.add_argument('--batch_size', type=int, default=None, required=False, help='batch size for training')
     parser.add_argument('--epochs', type=int, default=None, required=False, help='number of epochs to train for')
     parser.add_argument('--workers', type=int, default=0, help='number of workers for dataloader')
@@ -117,7 +117,54 @@ def main():
     model.cuda()
 
     optimizer = build_optimizer(model, cfg.OPTIMIZATION)
+    # import pdb
+    # from spconv.pytorch import SparseConvTensor
 
+    # def stats_hook(module, inp, out):
+    #     def check(name, tensor):
+    #         if not tensor.isfinite().all():
+    #             print(f"\n🛑 NaN/Inf in {module.__class__.__name__} → {name}")
+    #             print("    out min/max =", float(torch.nanmin(tensor)), "/", float(torch.nanmax(tensor)))
+    #             for i, t in enumerate(inp):
+    #                 if isinstance(t, torch.Tensor):
+    #                     print(f"    inp[{i}] min/max =", float(torch.nanmin(t)), "/", float(torch.nanmax(t)))
+    #             pdb.set_trace()
+
+    #     # handle a single Tensor or SparseConvTensor
+    #     if isinstance(out, torch.Tensor):
+    #         check("out", out)
+    #     elif isinstance(out, SparseConvTensor):
+    #         check("out.features", out.features)
+
+    #     # handle tuples or lists
+    #     elif isinstance(out, (list, tuple)):
+    #         for idx, elem in enumerate(out):
+    #             if isinstance(elem, torch.Tensor):
+    #                 check(f"out[{idx}]", elem)
+    #             elif isinstance(elem, SparseConvTensor):
+    #                 check(f"out[{idx}].features", elem.features)
+
+    #     # handle dicts (common in PCDet)
+    #     elif isinstance(out, dict):
+    #         for k, v in out.items():
+    #             if isinstance(v, torch.Tensor):
+    #                 check(f"out['{k}']", v)
+    #             elif isinstance(v, SparseConvTensor):
+    #                 check(f"out['{k}'].features", v.features)
+    #             elif isinstance(v, (list, tuple)):
+    #                 for idx, elem in enumerate(v):
+    #                     if isinstance(elem, torch.Tensor):
+    #                         check(f"out['{k}'][{idx}]", elem)
+    #                     elif isinstance(elem, SparseConvTensor):
+    #                         check(f"out['{k}'][{idx}].features", elem.features)
+
+    #     # return None so we don’t modify any outputs
+    #     return None
+
+    # # register it immediately after you build/load your model:
+    # for m in model.modules():
+    #     m.register_forward_hook(stats_hook)
+    # print("🔍 NaN/Inf watcher installed across all modules")
     # load checkpoint if it is possible
     start_epoch = it = 0
     last_epoch = -1
@@ -139,7 +186,7 @@ def main():
     model.train()  # before wrap to DistributedDataParallel to support fixed some parameters
     if dist_train:
         model = nn.parallel.DistributedDataParallel(model, device_ids=[cfg.LOCAL_RANK % torch.cuda.device_count()])#,find_unused_parameters=True
-    logger.info(model)
+    # logger.info(model)
 
     lr_scheduler, lr_warmup_scheduler = build_scheduler(
         optimizer, total_iters_each_epoch=len(train_loader), total_epochs=args.epochs,

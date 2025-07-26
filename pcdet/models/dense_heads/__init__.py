@@ -6,7 +6,7 @@ from .point_head_box import PointHeadBox
 from .point_head_simple import PointHeadSimple
 from .point_intra_part_head import PointIntraPartOffsetHead
 from .center_head import CenterHead
-from .pvt_ssd_head import PVTSSDHead
+from .point_vit_head import PointVitHead
 __all__ = {
     'AnchorHeadTemplate': AnchorHeadTemplate,
     'AnchorHeadSingle': AnchorHeadSingle,
@@ -15,5 +15,5 @@ __all__ = {
     'PointHeadSimple': PointHeadSimple,
     'PointHeadBox': PointHeadBox,
     'AnchorHeadMulti': AnchorHeadMulti,
-    'PVTSSDHead': PVTSSDHead
+    'PointVitHead': PointVitHead
 }

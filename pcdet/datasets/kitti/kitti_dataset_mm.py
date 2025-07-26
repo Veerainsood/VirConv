@@ -417,7 +417,8 @@ class KittiDatasetMM(DatasetTemplate):
 
             input_dict.update({
                 'gt_names': gt_names,
-                'gt_boxes': gt_boxes_lidar
+                'gt_boxes': gt_boxes_lidar,
+                'gt_boxes_camera': gt_boxes_camera
             })
 
 

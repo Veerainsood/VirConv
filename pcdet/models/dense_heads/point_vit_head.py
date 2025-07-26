@@ -33,6 +33,7 @@ class VoteLayer(nn.Module):
         Return:
             new_xyz: (N, 3)
         """
+        # breakpoint()
         seed_offset = self.offset_conv(seed_feats)  # (N, 3)
         seed_cls = self.cls_conv(seed_feats)  # (N, num_class)
         limited_offset = []
@@ -50,19 +51,45 @@ def fps_pool_layer(points, point_feats, point_scores, batch_size, model_cfg, mod
     fps_indices = []
     pre_sum = 0
     for bs_idx in range(batch_size):
+        
         cur_points, cur_point_feats, cur_point_scores = \
             points[points[:, 0] == bs_idx][:, 1:4], point_feats[points[:, 0] == bs_idx], \
-                point_scores[points[:, 0] == bs_idx]
+            point_scores[points[:, 0] == bs_idx]
+        
         assert len(cur_points) == len(cur_point_feats) == len(cur_point_scores)
+        
+        
         topk_nponits = min(len(cur_point_scores), model_cfg.MAX_NPOINTS[mode])
+        '''
+            FPS_CONFIG: //src -> yaml file in tools/cfg/models/kitty/PointVit.yaml
+                TYPE: {
+                'train': ['d-fps', 's-fps'],
+                'test': ['s-fps']
+                }
+                MAX_NPOINTS: {
+                'train': 4096,
+                'test': 2048
+                }
+                NPOINTS: {
+                'train': [64, 64],
+                'test': [128]  # cannot be -1 due to fps in vote sa
+                }
+        '''
+        
         _, topk_indices = torch.topk(cur_point_scores.sigmoid(), topk_nponits, dim=0)
+        
         
         cur_points, cur_point_feats, cur_point_scores = \
             cur_points[topk_indices], cur_point_feats[topk_indices], \
                 cur_point_scores[topk_indices]
         
         cur_fps_indices = []
+        # the top k above picked the maximum number of allowed points via taking highest probable points which were object like!!
+
+        # we now want to pick some small subset pf those (NPOINTS specifically) via fps...
+
         for fps_npoints, fps_type in zip(model_cfg.NPOINTS[mode], model_cfg.TYPE[mode]):
+        
             if fps_npoints > 0:
                 cur_fps_indices_ = point_sampler(
                     fps_type=fps_type, 
@@ -73,17 +100,21 @@ def fps_pool_layer(points, point_feats, point_scores, batch_size, model_cfg, mod
                 ).squeeze(0)
             else:
                 cur_fps_indices_ = torch.arange(len(cur_points)).to(cur_points.device)
+            
             cur_fps_indices.append(cur_fps_indices_)
+        
         cur_fps_indices = torch.cat(cur_fps_indices, dim=0)
 
         cur_fps_indices = topk_indices[cur_fps_indices.long()]
         fps_indices.append(cur_fps_indices + pre_sum)
         pre_sum += torch.sum(points[:, 0] == bs_idx)
+    
     fps_indices = torch.cat(fps_indices, dim=0).long()
+    
     return fps_indices
 
 
-class PVTSSDHead(PointHeadTemplate):
+class PointVitHead(PointHeadTemplate):
     def __init__(self, num_class, input_channels, model_cfg, voxel_size, point_cloud_range, predict_boxes_when_training=False, **kwargs):
         super().__init__(model_cfg=model_cfg, num_class=num_class)
         self.predict_boxes_when_training = predict_boxes_when_training
@@ -117,7 +148,7 @@ class PVTSSDHead(PointHeadTemplate):
         self.exp = spconv.SparseSequential(
             block(input_channels, input_channels, 3, norm_fn=norm_fn, stride=1, padding=1, indice_key='sp_exp', conv_type='spconv', dim=2),
         )
-        self.vote_layer = VoteLayer(
+        self.representative_finder = VoteLayer(
             model_cfg.VOTE_CONFIG.OFFSET_RANGE,
             input_channels,
             model_cfg.VOTE_CONFIG.MLPS,
@@ -138,7 +169,7 @@ class PVTSSDHead(PointHeadTemplate):
 
         self.point_feat_reduction = make_fc_layers(
             [128],
-            in_channels,
+            320,
             linear=True
         )
         
@@ -227,19 +258,6 @@ class PVTSSDHead(PointHeadTemplate):
 
         """ Aux loss """
         spatial_features = input_dict['spatial_features']
-        
-        sorted_idx = torch.argsort(spatial_features.indices[:, 0])
-        new_idx = spatial_features.indices[sorted_idx]
-        new_features = spatial_features.features[sorted_idx]
-        new = SparseConvTensor(
-            new_features,
-            new_idx,
-            spatial_features.spatial_shape,   # same spatial dims
-            spatial_features.batch_size       # same batch size
-        )
-        input_dict['spatial_features'] = new
-        spatial_features = new
-
         spatial_features_stride = input_dict['spatial_features_stride']
         feature_map_size = spatial_features.spatial_shape
         feature_map_stride = spatial_features_stride
@@ -260,6 +278,7 @@ class PVTSSDHead(PointHeadTemplate):
         ).view(batch_size, -1, gt_boxes.shape[-1])
         
         central_radius = self.model_cfg.TARGET_CONFIG.get('GT_CENTRAL_RADIUS', 2.0)
+        # breakpoint()
         vote_targets_dict = self.assign_stack_targets(
             points=input_dict['votes'], gt_boxes=gt_boxes, 
             set_ignore_flag=False, use_ball_constraint=True,
@@ -329,6 +348,9 @@ class PVTSSDHead(PointHeadTemplate):
 
     def get_seed_reg_loss(self, tb_dict=None):
         seed_cls_labels_list = self.forward_ret_dict['seed_cls_labels_list']
+        # breakpoint()
+        # if(self.forward_ret_dict['seed_cls_labels_list'][0]>0):
+        #     print("Model Outputtting 0 predicts")
         gt_box_of_fg_seeds_list = self.forward_ret_dict['gt_box_of_fg_seeds_list']
         votes_list = self.forward_ret_dict['votes_list']
         seed_center_loss_list = []
@@ -470,14 +492,25 @@ class PVTSSDHead(PointHeadTemplate):
         gt_boxes = self.forward_ret_dict['gt_box_of_fg_votes']
         pred_boxes = self.forward_ret_dict['point_box_preds']
         pred_boxes = pred_boxes[pos_mask]
-        loss_corner = loss_utils.get_corner_loss_lidar(
-            pred_boxes[:, 0:7],
-            gt_boxes[:, 0:7],
-            p=self.model_cfg.LOSS_CONFIG.CORNER_LOSS_TYPE
-        ).mean()
-        loss_corner = loss_corner * self.model_cfg.LOSS_CONFIG.LOSS_WEIGHTS['vote_corner_weight']
-        tb_dict.update({'vote_corner_loss': loss_corner.item()})
-        return loss_corner, tb_dict
+
+        num_pos = pos_mask.sum()
+        num_gt = gt_boxes.size(0)
+        assert num_pos == num_gt, "somehow # of inside points dont equal # of corresponding gt_boxes"
+
+        if num_pos == 0 :
+            zero = torch.tensor(0.0, device=next(self.parameters()).device)
+            tb_dict['vote_corner_loss'] = 0.0
+            return zero, tb_dict
+
+        else:
+            loss_corner = loss_utils.get_corner_loss_lidar(
+                pred_boxes[:, 0:7],
+                gt_boxes[:, 0:7],
+                p=self.model_cfg.LOSS_CONFIG.CORNER_LOSS_TYPE
+            ).mean()
+            loss_corner = loss_corner * self.model_cfg.LOSS_CONFIG.LOSS_WEIGHTS['vote_corner_weight']
+            tb_dict.update({'vote_corner_loss': loss_corner.item()})
+            return loss_corner, tb_dict
 
     def voxel_knn_query_wrapper(self, points, point_coords, sp_tensor, stride, dim, query_range, radius, nsample, return_xyz=False):
         sorted_idx = torch.argsort(sp_tensor.indices[:, 0])
@@ -532,7 +565,7 @@ class PVTSSDHead(PointHeadTemplate):
 
     def get_point_features(self, batch_dict, points, point_coords):
         point_features = []
-        for k, src_name in enumerate(self.point_knn_cfg.FEATURES_SOURCE):
+        for _, src_name in enumerate(self.point_knn_cfg.FEATURES_SOURCE):
             cur_stride = batch_dict['multi_scale_3d_strides'][src_name]
             cur_sp_tensors = batch_dict['multi_scale_3d_features'][src_name]
             dim = 2 if src_name == 'x_bev' else 3
@@ -546,6 +579,7 @@ class PVTSSDHead(PointHeadTemplate):
             weight = dist_recip / torch.clamp_min(norm, min=1e-8)
             point_features.append(k_interpolate(cur_sp_tensors.features, idx, weight))  # (N, C)
         point_features = torch.cat(point_features, dim=-1)
+       
         point_features = self.point_feat_reduction(point_features)
         return point_features
 
@@ -627,19 +661,44 @@ class PVTSSDHead(PointHeadTemplate):
     def get_bev_features(self, points, bev_features, bev_stride):
         """
         Args:
-            points: (B, K, 3)
+            points: (B, K, 3) # ( B , K , x , y , z)
         """
+        # breakpoint()
         point_cloud_range = torch.tensor(self.point_cloud_range, device=points.device, dtype=torch.float32)
         voxel_size = torch.tensor(self.voxel_size, device=points.device, dtype=torch.float32)
-        xy = (points[..., 0:2] - point_cloud_range[0:2]) / voxel_size[0:2] / bev_stride  # (B, K, 2)
-        h, w = bev_features.shape[-2:]
+        
+        xy = (points[..., 0:2] - point_cloud_range[0:2]) / voxel_size[0:2] / bev_stride  # (B, K, X , Y)  - (X_min , Y_min) / ( stride * (SizeVoxel_Y , SizeVoxel_Y) )
+
+        # above is a binning attempt to assign each point to a voxel in bev grid. Here bev_stride is needed since we had taken a stride of 16 when 
+        # we were downsampling 3d voxel grid to 2D bev grid... we shrank X , Y by 16..... ( all strided conv did that only...)
+        # we now compensate for that here .. by dividing by stride since our bev grid is more coarser.... so if we wont divide points will go out of bounds...
+        
+        # (ITS THE MATH THAT BEV NEEDS NOT THE MATH IT WANTS ( I AM BATMAN )) (I am borded lol) also note that K is just the # of points sampled together per
+        # voxel scene..... it happens to be accidentally to be same as C, so dont confuse it to be channel... 
+        
+        # that is giving them distinct indexes / voxel center indexes..... too look at ( currntly bev_stride = 16)
+
+        # pvt ssd has a grid of X -> 70 , Y -> 80 & Z-> 4.....
+        
+        h, w = bev_features.shape[-2:] # [B, C, H, W] , # h = H (rows or Y), w = W (cols or X)
+
         norm_xy = torch.cat([
-            xy[..., 0:1] / (w - 1),
-            xy[..., 1:2] / (h - 1)
-        ], dim=-1)
+            xy[..., 0:1] / (w - 1), # X / col
+            xy[..., 1:2] / (h - 1) # Y / rows
+        ], dim=-1) # ( B , K , 2) ( this normalizes your points indices... over the grid )
+        '''
+            So the two steps are: ( you gotta do what you need to do to make the lib happy)
+
+            / voxel_size / bev_stride
+                Meters → voxels → BEV pixels (e.g. 32.0 → row 32, col 50 in your 200x176 map).
+
+            / (w-1) & / (h-1)
+                Pixel indices → normalized [0,1] range (e.g. 50 → 50/175 ≈ 0.286).
+        '''
         bev_feats = torch.nn.functional.grid_sample(
             bev_features,  # (B, C, H, W)
-            norm_xy.unsqueeze(2) * 2 - 1,  # (B, K, 1, 2)
+            norm_xy.unsqueeze(2) * 2 - 1,  # (B, K, 1, 2) just to make it a 4D tensor.... they add a dummy variable... the computation actually happens on \
+            # last 2 variables....
             align_corners=True
         ).squeeze(-1).permute(0, 2, 1)  # (B, C, K) -> (B, K, C)
 
@@ -661,30 +720,19 @@ class PVTSSDHead(PointHeadTemplate):
                 point_cls_scores: (N1 + N2 + N3 + ..., 1)
                 point_part_offset: (N1 + N2 + N3 + ..., 3)
         """
-        sf = batch_dict['spatial_features']   # the original SparseConvTensor
+        # sf = batch_dict['spatial_features']   # the original SparseConvTensor
         
-        # to avoid passing empty vectors into the model.... it panics...
-        if sf.features.shape[0] == 0:
-            batch_dict['batch_cls_preds']   = torch.empty((0, 1), device=sf.features.device)
-            batch_dict['batch_box_preds']   = torch.empty((0, 7), device=sf.features.device)  # adjust shape to your box dim
-            batch_dict['batch_index']       = torch.empty((0,),   device=sf.features.device, dtype=torch.long)
-            batch_dict['cls_preds_normalized'] = False
-            return batch_dict
-        else:
-            batch_dict['spatial_features'] = self.exp(sf)
+        # # to avoid passing empty vectors into the model.... it panics...
+        # if sf.features.shape[0] == 0:
+        #     batch_dict['batch_cls_preds']   = torch.empty((0, 1), device=sf.features.device)
+        #     batch_dict['batch_box_preds']   = torch.empty((0, 7), device=sf.features.device)  # adjust shape to your box dim
+        #     batch_dict['batch_index']       = torch.empty((0,),   device=sf.features.device, dtype=torch.long)
+        #     batch_dict['cls_preds_normalized'] = False
+        #     return batch_dict
+        # else:
+        #     batch_dict['spatial_features'] = self.exp(sf)
 
         spatial_features = batch_dict['spatial_features']
-        sorted_idx = torch.argsort(spatial_features.indices[:, 0])
-        new_indices = spatial_features.indices[sorted_idx]
-        new_features = spatial_features.features[sorted_idx]
-        new = SparseConvTensor(
-            new_features,
-            new_indices,
-            spatial_features.spatial_shape,   # same spatial dims
-            spatial_features.batch_size       # same batch size
-        )
-        batch_dict['spatial_features'] = new
-        spatial_features = new
         voxel_coords = spatial_features.indices
         voxel_features = spatial_features.features
         voxel_stride = batch_dict['spatial_features_stride']
@@ -699,39 +747,84 @@ class PVTSSDHead(PointHeadTemplate):
         mode = 'train' if self.training else 'test'
         seeds = voxel_centers  # (N, 4)
         seed_features = voxel_features  # (N, C)
+        
+        # seeds are x_bev voxels basically....
 
-        votes, seed_cls, seed_reg = self.vote_layer(seeds, seed_features)
+        representativePoints, seed_cls, seed_deltaDisplacements = self.representative_finder(seeds, seed_features)
+        
+        # representativePoints -> [batchIDx , x+Δx, y+Δy, z+Δz] -> lifted to the proposed voxel centers... from bev feature map
+        
+        # seed_cls -> [batchIDx , objectiveness score ] objectiveness score -> how likely is a voxel / seed present inside an object....
+        
+        # seed_deltaDisplacements -> [batchIDx,Δx, Δy, Δz]
+
         fps_indices = fps_pool_layer(
             seeds, seed_features, torch.max(seed_cls, dim=-1)[0], batch_size,
             self.model_cfg.FPS_CONFIG, mode
         )
 
-        vote_candidates = votes[fps_indices].detach()  # (K1+K2+..., 4)
+        # above portion runs a probability guided fps to choose NPOINTS top representativePoint indices per batch....
+
+        vote_candidates = representativePoints[fps_indices].detach()  # (K1+K2+..., 4)
+
         voxel_features_dense = batch_dict['multi_scale_3d_features']['x_bev'].dense()
+
         voxel_features_dense = self.dense_conv2d(voxel_features_dense) + voxel_features_dense
+        
         vote_candidate_features = self.get_bev_features(
-            vote_candidates[..., 1:4].reshape(batch_size, -1, 3), 
+            vote_candidates[..., 1:4].reshape(batch_size, -1, 3), # X Y Z 
             voxel_features_dense,
             batch_dict['multi_scale_3d_strides']['x_bev']
         )
         vote_candidate_features = vote_candidate_features.reshape(-1, vote_candidate_features.shape[-1])  # (K1+K2+..., C)
         vote_candidate_features = self.vote_reduce_conv(torch.cat([vote_candidate_features, seed_features[fps_indices]], dim=-1))
+        
+        # preserving their original features + giving them strided bev features too!! (BY the grace of Shr-- Rad-a )  
+
         pc_range = vote_candidates.new_tensor(self.point_cloud_range)
         voxel_size = vote_candidates.new_tensor(self.voxel_size)
-        vote_candidate_coords = ((vote_candidates[:, 1:4] - pc_range[:3]) / voxel_size).to(torch.int64)
-        vote_candidate_coords = torch.cat([vote_candidates[:, 0:1].long(), torch.flip(vote_candidate_coords, dims=[-1])], dim=-1)  # [bs_idx, Z, Y, X]
-        _, voxel_idx, voxel_empty, voxel_k_pos, voxel_k_feats, voxe_q_pos = self.voxel_knn_query_wrapper(vote_candidates[:, 1:4], vote_candidate_coords, \
-            batch_dict['multi_scale_3d_features']['x_bev'], batch_dict['multi_scale_3d_strides']['x_bev'], \
-            2, [0, 16, 16], 100.0, 128, return_xyz=True
+        
+        # the developer was too lazy to write torch.tensor so he wrote this to put them to same device as vote candidates.....
+
+        # now our tommy will endevour to get surrounding keys and values.... from surrounding voxels of the representative points
+        # so that means first we need the voxel coord of the representative points...
+        '''
+            p torch.tensor(self.point_cloud_range[3:] - self.point_cloud_range[:3],device=voxel_size.device) / voxel_size
+            
+            -> tensor([1408., 1600.,   80.], device='cuda:0')
+        '''
+
+        vote_candidate_coords = ((vote_candidates[:, 1:4] - pc_range[:3]) / voxel_size).to(torch.int64) # get the X_VoxelIDX , Y_VoxelIDX , Z_VoxelIDX
+
+        vote_candidate_coords = torch.cat([
+    
+            vote_candidates[:, 0:1].long(), # pick up the batch_idx
+            
+            torch.flip(vote_candidate_coords,dims=[-1]) # reverse the X , Y , Z -> Z , X , Y
+        ], 
+        # and then she is saying to merge at the end.....
+        dim=-1)  # [bs_idx, Z_VoxelIDX, Y_VoxelIDX, X_VoxelIDX]
+
+        
+        # 6) Query the local 3D neighborhood around each candidate from your x_bev sparse tensor:
+        #    returns (for each vote) its K neighbors’ features, positions, and empty masks,
+        #    plus a flat "voxel_idx" that selects which neighbor goes with which vote.
+
+        _, voxel_idx, voxel_empty, voxel_k_pos, voxel_k_feats, voxe_q_pos = self.voxel_knn_query_wrapper( \
+            vote_candidates[:, 1:4], vote_candidate_coords, batch_dict['multi_scale_3d_features']['x_bev'],\
+            batch_dict['multi_scale_3d_strides']['x_bev'], 2, [0, 16, 16], 100.0, 128, return_xyz=True
         )
+        
         voxel_key_features = voxel_k_feats[voxel_idx.long()] \
             * (voxel_empty == 0).unsqueeze(-1)  # (K1+K2+..., T, C)
         voxel_key_pos_emb = (voxel_k_pos[voxel_idx.long()] - voxe_q_pos.unsqueeze(1)) \
             * (voxel_empty == 0).unsqueeze(-1)  # (K1+K2+..., T, 3)
+        # this is the F_voxel , P_voxel that the paper mentioned
 
         points = batch_dict['voxel_features']
         point_coords = batch_dict['voxel_coords']
         version = self.model_cfg.RV_CONFIG.get('VERSION', 1)
+        
         if version == 1:
             stride_rv_coords, _ = self.get_rv_map(batch_dict, vote_candidates)
             stride_rv_map, _, _ = self.get_rv_map(batch_dict, torch.cat([point_coords[:, 0:1], points[:, 0:3]], dim=-1), has_rv_map=False)  # [bs_idx, x, y, z]
@@ -755,38 +848,66 @@ class PVTSSDHead(PointHeadTemplate):
         new_points = points[pts_idx]
         new_point_coords = point_coords[pts_idx]
         new_point_features = self.get_point_features(batch_dict, new_points[:, :3], new_point_coords)
-
+        # this above get_point features gets the point features from the image method they have given in the paper
+        
         key_features = new_point_features[pooled_idx.long()] \
             * (pooled_empty == 0).unsqueeze(-1).unsqueeze(-1)  # (K1+K2+..., T, C)
         key_pos_emb = (new_points[:, :3][pooled_idx.long()] - vote_candidates[:, 1:4].unsqueeze(1)) \
             * (pooled_empty == 0).unsqueeze(-1).unsqueeze(-1)  # (K1+K2+..., T, 3)
-
+        # F_point , P_point in the paper..., here they are using relative position embeddings...
+        # breakpoint()
         vote_features = self.pv_transformer(
             src=torch.cat([key_features.permute(1, 0, 2), voxel_key_features.permute(1, 0, 2)], dim=0),
             tgt=vote_candidate_features.unsqueeze(1).permute(1, 0, 2),
             pos_res=torch.cat([key_pos_emb.permute(1, 0, 2).unsqueeze(0), voxel_key_pos_emb.permute(1, 0, 2).unsqueeze(0)], dim=1)
         ).squeeze(0)
+        '''
+            self.pv_transformer = Transformer(
+            d_model=128, nhead=trans_cfg.NHEAD, num_decoder_layers=trans_cfg.NUM_DEC, dim_feedforward=trans_cfg.FNN_DIM,
+            dropout=trans_cfg.DP_RATIO 
+        )
 
-        vote_features = self.shared_conv(vote_features)
-        vote_cls_preds = self.cls_conv(vote_features)
-        vote_box_preds = self.box_conv(vote_features)
+        here src is the fused keys and values from the surrounding points and voxels...
+        and the tgt is the queries that we have picked up from bev feature map....
+
+        attention will simply give us a more contextually aware... feature vectors... its a way to combine these
+        surrounding features by asking some questions... and based on those questions we generate contextually aware
+        answers which form our featur vector for each representative points....
+
+        simply beautiful journey....... till this point...
+        but  as all journey's end (soob soob weep weep) this one ends too....
+        this ends with harry potter asking hermiony granger out.... , nah I am kidding
+        
+        this ends with the author predicting the bboxes and the classes using these contextually aware features below
+        '''
+
+        vote_features = self.shared_conv(vote_features) # shrink to head dim...
+        vote_cls_preds = self.cls_conv(vote_features) # [M, num_classes]
+        vote_box_preds = self.box_conv(vote_features) # [M, box_regression_dims]
+
+        # breakpoint()
 
         ret_dict = {
             'vote_cls_preds': vote_cls_preds,
             'vote_box_preds': vote_box_preds,
             'votes': vote_candidates,
-            'votes_list': [votes],
+            'votes_list': [representativePoints],
             'seeds_list': [seeds],
             'seeds_cls_list': [seed_cls],
             'batch_size': batch_dict['batch_size']
         }
+        
+        # we store these so that the thanos has some way to recover the 5 gem stones of the universe....
+        # I am sorry I have gone crazy... lol
 
         batch_dict.update({
             'votes_list': ret_dict['votes_list'],
             'seeds_list': ret_dict['seeds_list'],
             'votes': ret_dict['votes']
         })
+
         if self.training:
+            # breakpoint()
             targets_dict = self.assign_targets(batch_dict)
             ret_dict.update(targets_dict)
 

@@ -4,6 +4,8 @@ import torch.nn as nn
 import numpy as np
 import torch
 from pcdet.datasets.augmentor.X_transform import X_TRANS
+import pdb
+import torch_scatter
 
 def index2points(indices, pts_range=[0, -40, -3, 70.4, 40, 1], voxel_size=[0.05, 0.05, 0.05], stride=8):
     """
@@ -226,6 +228,48 @@ class NRConvBlock(nn.Module):
 
         return d3_feat3
 
+class SparseMiddleLayer(spconv.SparseModule):
+    def __init__(self, in_channel):
+        super().__init__()
+
+        norm_fn = partial(nn.BatchNorm1d, eps=1e-3, momentum=0.01)
+        block = post_act_block
+
+        self.conv1 = spconv.SparseSequential(
+            block(in_channel, 128, 3, norm_fn=norm_fn, stride=1, padding=1, indice_key='_spconv1', conv_type='spconv', dim=2),
+            block(128, 128, 3, norm_fn=norm_fn, padding=1, indice_key='_subm1', dim=2),
+            block(128, 128, 3, norm_fn=norm_fn, padding=1, indice_key='_subm1', dim=2),
+            block(128, 128, 3, norm_fn=norm_fn, padding=1, indice_key='_subm1', dim=2),
+            # block(128, 128, 3, norm_fn=norm_fn, padding=1, indice_key='_subm1', dim=2),
+        )# [200, 176]
+        self.conv2 = spconv.SparseSequential(
+            block(128, 128, 3, norm_fn=norm_fn, stride=2, padding=1, indice_key='_spconv2', conv_type='spconv', dim=2),
+            block(128, 128, 3, norm_fn=norm_fn, padding=1, indice_key='_subm2', dim=2),
+            block(128, 128, 3, norm_fn=norm_fn, padding=1, indice_key='_subm2', dim=2),
+            block(128, 128, 3, norm_fn=norm_fn, padding=1, indice_key='_subm2', dim=2),
+            # block(128, 128, 3, norm_fn=norm_fn, padding=1, indice_key='_subm2', dim=2),
+        )# [100, 88]
+        self.refineConnect = block(128, 128, 3, norm_fn=norm_fn, indice_key='_subm1', dim=2)
+        self.inv_conv2 = block(128, 128, 3, norm_fn=norm_fn, indice_key='_spconv2', conv_type='inverseconv', dim=2)
+
+        self.conv_out = block(256, 128, 3, norm_fn=norm_fn, indice_key='_subm1', dim=2)
+    
+    def forward(self, x):
+        
+        x_in = x.dense()
+        N, _, _, Y, X = x_in.shape
+        # breakpoint()
+        x_in = spconv.SparseConvTensor.from_dense(x_in.view(N, -1, Y, X).permute(0, 2, 3, 1).contiguous())
+        # pdb.set_trace()
+        x1 = self.conv1(x_in)
+        x2 = self.conv2(x1)
+        x1_refine = self.refineConnect(x1)
+        x2_up = self.inv_conv2(x2)
+        x_out = self.conv_out(replace_feature(x1_refine, torch.cat([x1_refine.features, x2_up.features], dim=-1)))
+        slices = [x.indices[:, i].long() for i in [0, 2, 3]]
+        # (B, C, Y, X) -> (B, Y, X, C)
+        return replace_feature(x, x.features + x_out.dense().permute(0, 2, 3, 1)[slices]), x_out # kind of add the bev map feature to each voxel feature... and also give bev map as output...
+
 
 class VirConv8x(nn.Module):
     def __init__(self, model_cfg, input_channels, grid_size,  **kwargs):
@@ -280,19 +324,45 @@ class VirConv8x(nn.Module):
 
         last_pad = 0
         last_pad = self.model_cfg.get('last_pad', last_pad)
-        self.conv_out = spconv.SparseSequential(
-            # [200, 150, 5] -> [200, 150, 2]
-            spconv.SparseConv3d(num_filters[3], self.out_features, (3, 1, 1), stride=(2, 1, 1), padding=last_pad,
+        self.conv5 = spconv.SparseSequential(
+            # [200, 150, 10] -> [200, 150, 4]
+            spconv.SparseConv3d(num_filters[3], num_filters[3], (3, 1, 1), stride=(2, 1, 1), padding=last_pad,
                                 bias=False, indice_key='spconv_down2'),
             norm_fn(self.out_features),
             nn.ReLU(),
         )
+
+        self.conv6 = spconv.SparseSequential(
+            # [200, 150, 4] -> [200, 150, 2]
+            spconv.SparseConv3d(num_filters[3], num_filters[3], (3, 1, 1), stride=(2, 1, 1), padding=1,
+                                bias=False, indice_key='spconv_down3'),
+            norm_fn(self.out_features),
+            nn.ReLU(),
+        )
+
+        self.nr_final1 = spconv.SparseSequential(
+            # [200, 150, 5] -> [200, 150, 2]
+            spconv.SparseConv3d(num_filters[3], num_filters[3],(3,1,1), stride=(2, 1, 1), padding=last_pad,
+                                bias=False, indice_key='spconv_down4'),
+            norm_fn(self.out_features),
+            nn.ReLU(),
+        )
+        self.nr_final2 = spconv.SparseSequential(
+            # [200, 150, 5] -> [200, 150, 2]
+            spconv.SparseConv3d(num_filters[3], num_filters[3], (3,1,1),stride=(2, 1, 1), padding=1,
+                                bias=False, indice_key='spconv_down5'),
+            norm_fn(self.out_features),
+            nn.ReLU(),
+        )
+
         if self.model_cfg.get('MM', False):
             self.vir_conv1 = NRConvBlock(input_channels, num_filters[0], stride=1, indice_key='vir1')
             self.vir_conv2 = NRConvBlock(num_filters[0], num_filters[1], stride=2, indice_key='vir2')
             self.vir_conv3 = NRConvBlock(num_filters[1], num_filters[2], stride=2, indice_key='vir3')
             self.vir_conv4 = NRConvBlock(num_filters[2], num_filters[3], stride=2, padding=(0, 1, 1),
                                           indice_key='vir4')
+
+        self.middle_conv = SparseMiddleLayer(num_filters[3]*2)
 
         self.num_point_features = self.out_features
 
@@ -314,25 +384,7 @@ class VirConv8x(nn.Module):
         decompose a sparse tensor by the given transformation index.
         """
 
-        input_shape = tensor.spatial_shape[2]
-        begin_shape_ids = i * (input_shape // 4)
-        end_shape_ids = (i + 1) * (input_shape // 4)
-        x_conv3_features = tensor.features
-        x_conv3_coords = tensor.indices
-
-        mask = (begin_shape_ids < x_conv3_coords[:, 3]) & (x_conv3_coords[:, 3] < end_shape_ids)
-        this_conv3_feat = x_conv3_features[mask]
-        this_conv3_coords = x_conv3_coords[mask]
-        this_conv3_coords[:, 3] -= i * (input_shape // 4)
-        this_shape = [tensor.spatial_shape[0], tensor.spatial_shape[1], tensor.spatial_shape[2] // 4]
-
-        this_conv3_tensor = spconv.SparseConvTensor(
-            features=this_conv3_feat,
-            indices=this_conv3_coords.int(),
-            spatial_shape=this_shape,
-            batch_size=batch_size
-        )
-        return this_conv3_tensor
+        return tensor
 
     def sort_sparse_tensor(self,sparse_t: spconv.SparseConvTensor) -> spconv.SparseConvTensor:
         inds, feats = sparse_t.indices, sparse_t.features
@@ -367,6 +419,13 @@ class VirConv8x(nn.Module):
 
         new_shape = [self.sparse_shape[0], self.sparse_shape[1], self.sparse_shape[2] * 4]
 
+        lidar_out_per_rot = []
+        lidar_x_conv1_per_rot = []
+        lidar_x_conv2_per_rot = []
+        lidar_x_conv3_per_rot = []
+        lidar_x_conv4_per_rot = []
+        lidar_x_conv5_per_rot = []
+
         if self.training:
             for i in range(rot_num):
                 if i == 0:
@@ -386,34 +445,23 @@ class VirConv8x(nn.Module):
                 )
                 self.sort_sparse_tensor(input_sp_tensor)
                 x = self.conv_input(input_sp_tensor)
-
+                # breakpoint()
                 x_conv1 = self.conv1(x)
                 x_conv2 = self.conv2(x_conv1)
                 x_conv3 = self.conv3(x_conv2)
                 x_conv4 = self.conv4(x_conv3)
-
+                out = self.conv5(x_conv4)
                 # for detection head
                 # [200, 176, 5] -> [200, 176, 2]
-                out = self.conv_out(x_conv4)
 
-                batch_dict.update({
-                    'encoded_spconv_tensor' + rot_num_id: out,
-                    'encoded_spconv_tensor_stride' + rot_num_id: 8,
-                })
-                batch_dict.update({
-                    'multi_scale_3d_features' + rot_num_id: {
-                        'x_conv1': x_conv1,
-                        'x_conv2': x_conv2,
-                        'x_conv3': x_conv3,
-                        'x_conv4': x_conv4,
-                    },
-                    'multi_scale_3d_strides' + rot_num_id: {
-                        'x_conv1': 1,
-                        'x_conv2': 2,
-                        'x_conv3': 4,
-                        'x_conv4': 8,
-                    }
-                })
+                # breakpoint()
+                
+                lidar_out_per_rot.append(out)
+                lidar_x_conv1_per_rot.append(x_conv1)
+                lidar_x_conv2_per_rot.append(x_conv2)
+                lidar_x_conv3_per_rot.append(x_conv3)
+                lidar_x_conv4_per_rot.append(x_conv4)
+
         else:
             for i in range(rot_num):
                 if i == 0:
@@ -441,15 +489,15 @@ class VirConv8x(nn.Module):
             )
             self.sort_sparse_tensor(input_sp_tensor)
             x = self.conv_input(input_sp_tensor)
-
+            # breakpoint()
             x_conv1 = self.conv1(x)
             x_conv2 = self.conv2(x_conv1)
             x_conv3 = self.conv3(x_conv2)
             x_conv4 = self.conv4(x_conv3)
+            out = self.conv5(x_conv4)
 
             # for detection head
             # [200, 176, 5] -> [200, 176, 2]
-            out = self.conv_out(x_conv4)
 
             for i in range(rot_num):
                 if i == 0:
@@ -457,28 +505,13 @@ class VirConv8x(nn.Module):
                 else:
                     rot_num_id = str(i)
 
-                this_conv3 = self.decompose_tensor(x_conv3, i, batch_size)
-                this_conv4 = self.decompose_tensor(x_conv4, i, batch_size)
-                this_out = self.decompose_tensor(out, i, batch_size)
+                lidar_out_per_rot.append(out)
+                lidar_x_conv1_per_rot.append(x_conv1)
+                lidar_x_conv2_per_rot.append(x_conv2)
+                lidar_x_conv3_per_rot.append(x_conv3)
+                lidar_x_conv4_per_rot.append(x_conv4)
 
-                batch_dict.update({
-                    'encoded_spconv_tensor' + rot_num_id: this_out,
-                    'encoded_spconv_tensor_stride' + rot_num_id: 8,
-                })
-                batch_dict.update({
-                    'multi_scale_3d_features' + rot_num_id: {
-                        'x_conv1': None,
-                        'x_conv2': None,
-                        'x_conv3': this_conv3,
-                        'x_conv4': this_conv4,
-                    },
-                    'multi_scale_3d_strides' + rot_num_id: {
-                        'x_conv1': 1,
-                        'x_conv2': 2,
-                        'x_conv3': 4,
-                        'x_conv4': 8,
-                    }
-                })
+                
 
         for i in range(rot_num):
             if i == 0:
@@ -523,22 +556,66 @@ class VirConv8x(nn.Module):
                     layer_voxel_discard(newx_conv3, self.layer_discard_rate)
 
                 newx_conv4 = self.vir_conv4(newx_conv3, batch_size, calib, 8, self.x_trans_train, trans_param)
+                
+                newx_conv5 = self.nr_final1(newx_conv4)
+
+                # newx_conv6 = self.nr_final2(newx_conv5)
+                
+                out = lidar_out_per_rot[i]
+                
+                # Take the union of vir and lidar points.... and features
+                # breakpoint()
+                C1 = out.features.shape[1]          # LiDAR channels
+                C2 = newx_conv5.features.shape[1]   # virtual channels
+
+                assert C1 == C2, "Feature Merging Not possible!!"
+                
+                all_coords = torch.cat([out.indices, newx_conv5.indices], 0)      # [N+M, 4]
+                all_feats  = torch.cat([out.features, newx_conv5.features], 0)    # [N+M, C]
+
+                # deduplicate -> sum (or max / mean) over any voxels that appear in both clouds 
+                uniq_coords, inv = torch.unique(all_coords, dim=0, return_inverse=True)
+
+                type = self.model_cfg.get('FUSION_TYPE', 'max')
+
+                if   type == 'max':
+                    fused_feats = torch_scatter.scatter_max(all_feats, inv, dim=0, dim_size=uniq_coords.size(0))[0]
+                elif type == 'mean':
+                    fused_feats = torch_scatter.scatter_mean(all_feats, inv, dim=0, dim_size=uniq_coords.size(0))[0]
+                elif type == 'add':
+                    fused_feats = torch_scatter.scatter_add(all_feats, inv, dim=0, dim_size=uniq_coords.size(0))[0]
+                # ‑ use scatter_mean or scatter_max if you prefer a different merge rule
+
+                # 3.  rebuild sparse tensor and keep it sorted
+                fused = spconv.SparseConvTensor(
+                    features      = fused_feats.contiguous(),
+                    indices       = uniq_coords,
+                    spatial_shape = out.spatial_shape,
+                    batch_size    = out.batch_size,
+                )
+                self.sort_sparse_tensor(fused)
+
+                _, bev_2d = self.middle_conv(fused)
 
                 batch_dict.update({
-                    'encoded_spconv_tensor_stride_mm' + rot_num_id: 8
+                    'encoded_spconv_tensor' + rot_num_id: bev_2d,
+                    'encoded_spconv_tensor_stride'+ rot_num_id: 8
                 })
+
                 batch_dict.update({
-                    'multi_scale_3d_features_mm' + rot_num_id: {
-                        'x_conv1': newx_conv1,
-                        'x_conv2': newx_conv2,
-                        'x_conv3': newx_conv3,
-                        'x_conv4': newx_conv4,
+                    'multi_scale_3d_features' + rot_num_id: {
+                        'x_conv1': lidar_x_conv1_per_rot[i],
+                        'x_conv2': lidar_x_conv2_per_rot[i],
+                        'x_conv3': lidar_x_conv3_per_rot[i],
+                        'x_conv4': lidar_x_conv4_per_rot[i],
+                        'x_bev': bev_2d
                     },
                     'multi_scale_3d_strides' + rot_num_id: {
                         'x_conv1': 1,
                         'x_conv2': 2,
                         'x_conv3': 4,
                         'x_conv4': 8,
+                        'x_bev': 8,
                     }
                 })
 
@@ -596,25 +673,25 @@ class VirConvL8x(nn.Module):
         decompose a sparse tensor by the given transformation index.
         """
 
-        input_shape = tensor.spatial_shape[2]
-        begin_shape_ids = i * (input_shape // 4)
-        end_shape_ids = (i + 1) * (input_shape // 4)
-        x_conv3_features = tensor.features
-        x_conv3_coords = tensor.indices
+        # input_shape = tensor.spatial_shape[2]
+        # begin_shape_ids = i * (input_shape // 4)
+        # end_shape_ids = (i + 1) * (input_shape // 4)
+        # x_conv3_features = tensor.features
+        # x_conv3_coords = tensor.indices
 
-        mask = (begin_shape_ids < x_conv3_coords[:, 3]) & (x_conv3_coords[:, 3] < end_shape_ids)
-        this_conv3_feat = x_conv3_features[mask]
-        this_conv3_coords = x_conv3_coords[mask]
-        this_conv3_coords[:, 3] -= i * (input_shape // 4)
-        this_shape = [tensor.spatial_shape[0], tensor.spatial_shape[1], tensor.spatial_shape[2] // 4]
+        # mask = (begin_shape_ids < x_conv3_coords[:, 3]) & (x_conv3_coords[:, 3] < end_shape_ids)
+        # this_conv3_feat = x_conv3_features[mask]
+        # this_conv3_coords = x_conv3_coords[mask]
+        # this_conv3_coords[:, 3] -= i * (input_shape // 4)
+        # this_shape = [tensor.spatial_shape[0], tensor.spatial_shape[1], tensor.spatial_shape[2] // 4]
 
-        this_conv3_tensor = spconv.SparseConvTensor(
-            features=this_conv3_feat,
-            indices=this_conv3_coords.int(),
-            spatial_shape=this_shape,
-            batch_size=batch_size
-        )
-        return this_conv3_tensor
+        # this_conv3_tensor = spconv.SparseConvTensor(
+        #     features=this_conv3_feat,
+        #     indices=this_conv3_coords.int(),
+        #     spatial_shape=this_shape,
+        #     batch_size=batch_size
+        # )
+        return tensor
 
     def forward(self, batch_dict):
         """

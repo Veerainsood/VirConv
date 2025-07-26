@@ -273,7 +273,7 @@ class MiniUNetV1(nn.Module):
                 point_features: (N, C)
         """
         voxel_features, voxel_coords = batch_dict['voxel_features'], batch_dict['voxel_coords']
-        breakpoint()
+        # breakpoint()
         batch_size = batch_dict['batch_size']
         input_sp_tensor = spconv.SparseConvTensor(
             features=voxel_features,

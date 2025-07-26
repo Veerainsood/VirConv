@@ -1,82 +1,149 @@
 CLASS_NAMES: ['Car']
 
-DATA_CONFIG: 
+DATA_CONFIG:
     _BASE_CONFIG_: cfgs/dataset_configs/kitti_dataset.yaml
-    POINT_CLOUD_RANGE: [0, -40, -3, 70.4, 40, 1]
+    DATASET: 'KittiDatasetMM'
+    INPUT_DISCARD_RATE: 0.8   # actually discard more than 90% virtual points of RGB image,
+                              # as we only saved less than 50% RGB points during depth2points conversion.
+    MM_PATH: 'velodyne_depth'
+    ROT_NUM: 3
+    USE_VAN: True
     DATA_SPLIT: {
         'train': train,
-        # 'test': val
+        'test': val
     }
 
     INFO_PATH: {
         'train': [kitti_infos_train.pkl],
-        # 'test': [kitti_infos_val.pkl],
+        'test': [kitti_infos_val.pkl],
     }
-    
+
     DATA_AUGMENTOR:
-      DISABLE_AUG_LIST: ['placeholder']
+        DISABLE_AUG_LIST: ['placeholder']
+        AUG_CONFIG_LIST:
+            - NAME: gt_sampling
+              USE_ROAD_PLANE: True
+              DB_INFO_PATH:
+                  - kitti_dbinfos_train_mm.pkl
+              PREPARE: {
+                  filter_by_min_points: ['Car:5', 'Pedestrian:5', 'Cyclist:5'],
+                  filter_by_difficulty: [-1],
+              }
+
+              SAMPLE_GROUPS: ['Car:10', 'Pedestrian:10', 'Cyclist:10']
+              NUM_POINT_FEATURES: 8
+              DATABASE_WITH_FAKELIDAR: False
+              REMOVE_EXTRA_WIDTH: [0.0, 0.0, -0.2]
+              LIMIT_WHOLE_SCENE: False
+
+            - NAME: da_sampling
+              USE_ROAD_PLANE: True
+              DB_INFO_PATH:
+                - kitti_dbinfos_train_mm.pkl
+              PREPARE: {
+                filter_by_min_points: ['Car:5'],
+                filter_by_difficulty: [-1],
+              }
+
+              SAMPLE_GROUPS: ['Car:10']
+
+              MIN_SAMPLING_DIS: 0
+              MAX_SAMPLING_DIS: 20
+              OCCLUSION_NOISE: 0.2
+              OCCLUSION_OFFSET: 2.
+              SAMPLING_METHOD: 'LiDAR-aware'
+              VERT_RES: 0.006
+              HOR_RES: 0.003
+
+              NUM_POINT_FEATURES: 8
+              DATABASE_WITH_FAKELIDAR: False
+              REMOVE_EXTRA_WIDTH: [0.0, 0.0, -0.2]
+              LIMIT_WHOLE_SCENE: False
+
+            - NAME: random_local_noise
+              LOCAL_ROT_RANGE: [-0.78539816, 0.78539816]
+              TRANSLATION_STD: [1.0, 1.0, 0.5]
+              GLOBAL_ROT_RANGE: [0.0, 0.0]
+              EXTRA_WIDTH: [0.2, 0.2, 0.]
+
+            - NAME: random_world_rotation
+              WORLD_ROT_ANGLE: [-0.78539816, 0.78539816]
+
+            - NAME: random_world_flip
+              ALONG_AXIS_LIST: ['x']
+
+            - NAME: random_world_scaling
+              WORLD_SCALE_RANGE: [0.95, 1.05]
+
+            - NAME: random_local_trans
+              TRANSLATION_STD: [1.0, 1.0, 0.2]
+
+            - NAME: random_local_pyramid_aug
+              DROP_PROB: 0.25
+              SPARSIFY_PROB: 0.05
+              SPARSIFY_MAX_NUM: 50
+              SWAP_PROB: 0.1
+              SWAP_MAX_NUM: 50
+
+    X_TRANS:
       AUG_CONFIG_LIST:
-        - NAME: gt_sampling
-          USE_ROAD_PLANE: True
-          DB_INFO_PATH:
-              - kitti_dbinfos_train_mm.pkl
-          PREPARE: {
-              filter_by_min_points: ['Car:5'],
-              filter_by_difficulty: [-1],
-          }
+        - NAME: world_rotation
+          WORLD_ROT_ANGLE: [0.3, 0.3, 0]
+        - NAME: world_flip
+          ALONG_AXIS_LIST: [0, 1., 1.]
+        - NAME: world_scaling
+          WORLD_SCALE_RANGE: [ 0.98, 1.02, 1.]
 
-          SAMPLE_GROUPS: ['Car:15']
-          NUM_POINT_FEATURES: 4
-          DATABASE_WITH_FAKELIDAR: False
-          REMOVE_EXTRA_WIDTH: [0.0, 0.0, 0.0]
-          LIMIT_WHOLE_SCENE: True
 
-        - NAME: random_world_flip
-          PROBABILITY: 0.5
-          ALONG_AXIS_LIST: ['x']
-
-        - NAME: random_world_rotation
-          PROBABILITY: 1.0
-          WORLD_ROT_ANGLE: [-0.78539816, 0.78539816]
-
-        - NAME: random_world_scaling
-          PROBABILITY: 1.0
-          WORLD_SCALE_RANGE: [0.95, 1.05]
+    POINT_FEATURE_ENCODING: {
+        encoding_type: absolute_coordinates_encoding_mm,
+        used_feature_list: ['x', 'y', 'z', 'intensity'],
+        src_feature_list: ['x', 'y', 'z', 'intensity'],
+        num_features: 8
+    }
 
     DATA_PROCESSOR:
-      - NAME: mask_points_and_boxes_outside_range
-        REMOVE_OUTSIDE_BOXES: True
+        - NAME: mask_points_and_boxes_outside_range
+          REMOVE_OUTSIDE_BOXES: True
 
-      - NAME: shuffle_points
-        SHUFFLE_ENABLED: {
-          'train': True,
-          'test': False
-        }
+        - NAME: shuffle_points
+          SHUFFLE_ENABLED: {
+            'train': True,
+            'test': False
+          }
 
-      - NAME: calculate_grid_size
-        VOXEL_SIZE: [0.05, 0.05, 0.1]
+        - NAME: transform_points_to_voxels
+          VOXEL_SIZE: [0.05, 0.05, 0.1]
+          MAX_POINTS_PER_VOXEL: 5
+          MAX_NUMBER_OF_VOXELS: {
+            'train': 16000, # each modality only uses 16000 voxels during training
+            'test': 40000
+          }
 
 MODEL:
     NAME: PointVit
 
     VFE:
-        NAME: DynVFE
-        TYPE: max
+        NAME: MeanVFE
+        MODEL: 'max'
 
     BACKBONE_3D:
         NAME: VirConv8x
-        NUM_FILTERS: [16, 32, 64, 64]
+        NUM_FILTERS: [16, 32, 64, 128]
         RETURN_NUM_FEATURES_AS_DICT: True
-        OUT_FEATURES: 64
+        OUT_FEATURES: 128
         MM: True
         LAYER_DISCARD_RATE: 0.15
+        FUSION_TYPE: 'max'
 
     MAP_TO_BEV:
         NAME: HeightCompression
-        NUM_BEV_FEATURES: 256
+        NUM_BEV_FEATURES: 128
+        TO_SPARSE: True
+        TYPE: cat
 
     DENSE_HEAD:
-        NAME: PVTSSDHead
+        NAME: PointVitHead
         CLASS_AGNOSTIC: False
 
         ANCHOR_HEIGHT: 0.0
@@ -122,7 +189,7 @@ MODEL:
                     QUERY_RANGE: [3, 3, 3]  # 0.4m * 3
                     RADIUS: 1.2
                     NSAMPLE: 8
-                    DIM: 64
+                    DIM: 128
                 x_bev:
                     QUERY_RANGE: [0, 4, 4]  # 0.4m * 4
                     RADIUS: 1.6
@@ -178,7 +245,8 @@ MODEL:
             'seed_reg_weight_list': [1.0],
             'seed_cls_weight_list': [1.0],
             'vote_corner_weight': 1.0,
-            'vote_code_weights': [1.0, 1.0, 1.0],
+            'vote_code_weights': [1.0, 1.0, 1.0]
+            # 'code_weights': [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
           }
 
     POST_PROCESSING:

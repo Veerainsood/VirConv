@@ -111,12 +111,12 @@ MODEL:
             FEATURES_SOURCE: ['x_conv3', 'x_conv4', 'x_bev']
             POOL_LAYERS:
                 x_conv3:
-                    QUERY_RANGE: [3, 3, 3]  # 0.2m * 3
+                    QUERY_RANGE: [6, 3, 3]  # 0.2m * 3
                     RADIUS: 0.8
                     NSAMPLE: 8
                     DIM: 64
                 x_conv4:
-                    QUERY_RANGE: [3, 3, 3]  # 0.4m * 3
+                    QUERY_RANGE: [6, 3, 3]  # 0.4m * 3
                     RADIUS: 1.2
                     NSAMPLE: 8
                     DIM: 64
